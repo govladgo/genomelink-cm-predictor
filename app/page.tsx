@@ -1,101 +1,212 @@
-import Image from "next/image";
+'use client';
+import React, { useState, useMemo } from 'react';
+import { CmInput } from '@/components/predictor/CmInput';
+import { RelationshipList } from '@/components/predictor/RelationshipList';
+import { EndogamyPanel } from '@/components/predictor/EndogamyPanel';
+import { InfoBox } from '@/components/predictor/InfoBox';
+import { getRelationshipsForCM } from '@/data/sharedCmData';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [cmValue, setCmValue] = useState('');
+  const [endogamyEnabled, setEndogamyEnabled] = useState(false);
+  const [endogamyFactor, setEndogamyFactor] = useState(1.0);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  const numericCM = parseFloat(cmValue) || 0;
+  const factor = endogamyEnabled ? endogamyFactor : 1.0;
+
+  const results = useMemo(() => {
+    if (numericCM <= 0) return [];
+    return getRelationshipsForCM(numericCM, factor);
+  }, [numericCM, factor]);
+
+  const topResult = results.length > 0 ? results[0] : null;
+
+  return (
+    <div
+      style={{
+        minHeight: '100vh',
+        background: '#F9FCFF',
+        display: 'flex',
+        justifyContent: 'center',
+        padding: '40px 16px',
+      }}
+    >
+      <div style={{ width: '100%', maxWidth: 720 }}>
+        {/* Header */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            marginBottom: 32,
+          }}
+        >
+          {/* Logo placeholder */}
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 8,
+              background: 'var(--gl-color-secondary)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+              fontSize: 16,
+              fontWeight: 700,
+              fontFamily: 'var(--gl-font)',
+              flexShrink: 0,
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            GL
+          </div>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: 20,
+              fontWeight: 600,
+              fontFamily: 'var(--gl-font)',
+              color: 'var(--gl-color-primary-dark)',
+              lineHeight: 1.3,
+            }}
           >
-            Read our docs
-          </a>
+            Shared cM relationship predictor
+          </h1>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+
+        {/* Main card */}
+        <div
+          style={{
+            background: '#fff',
+            borderRadius: 12,
+            boxShadow: '0 4px 10px rgba(74, 93, 128, 0.13)',
+            padding: 32,
+          }}
         >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+          {/* cM input */}
+          <div style={{ marginBottom: 20 }}>
+            <label
+              style={{
+                display: 'block',
+                fontSize: 13,
+                fontWeight: 500,
+                fontFamily: 'var(--gl-font)',
+                color: 'var(--gl-color-text-muted)',
+                marginBottom: 8,
+              }}
+            >
+              Enter shared centiMorgan (cM) value
+            </label>
+            <CmInput value={cmValue} onChange={setCmValue} />
+          </div>
+
+          {/* Endogamy panel */}
+          <div style={{ marginBottom: 24 }}>
+            <EndogamyPanel
+              enabled={endogamyEnabled}
+              factor={endogamyFactor}
+              inputCM={numericCM}
+              onEnabledChange={setEndogamyEnabled}
+              onFactorChange={setEndogamyFactor}
+            />
+          </div>
+
+          {/* Divider */}
+          <div
+            style={{
+              height: 1,
+              background: 'var(--gl-color-border)',
+              marginBottom: 20,
+            }}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+
+          {/* Results */}
+          {numericCM <= 0 ? (
+            <div
+              style={{
+                textAlign: 'center',
+                padding: '40px 0',
+                fontSize: 14,
+                fontFamily: 'var(--gl-font)',
+                color: 'var(--gl-color-text-muted)',
+              }}
+            >
+              Enter a cM value above to see relationship probabilities
+            </div>
+          ) : results.length === 0 ? (
+            <div
+              style={{
+                textAlign: 'center',
+                padding: '40px 0',
+                fontSize: 14,
+                fontFamily: 'var(--gl-font)',
+                color: 'var(--gl-color-text-muted)',
+              }}
+            >
+              No matching relationships found for {numericCM} cM
+              {endogamyEnabled && factor !== 1.0
+                ? ` (adjusted to ${Math.round(numericCM / factor)} cM)`
+                : ''}
+            </div>
+          ) : (
+            <>
+              {/* Results header */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 12,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 600,
+                    fontFamily: 'var(--gl-font)',
+                    color: 'var(--gl-color-primary-dark)',
+                  }}
+                >
+                  Possible relationships
+                </span>
+                <span
+                  style={{
+                    fontSize: 12,
+                    fontFamily: 'var(--gl-font)',
+                    color: 'var(--gl-color-text-muted)',
+                  }}
+                >
+                  {results.length} match{results.length !== 1 ? 'es' : ''}
+                </span>
+              </div>
+
+              {/* Info box for top result */}
+              {topResult && <InfoBox entry={topResult} />}
+
+              {/* Relationship list */}
+              <div style={{ marginTop: 16 }}>
+                <RelationshipList results={results} />
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div
+          style={{
+            marginTop: 24,
+            textAlign: 'center',
+            fontSize: 11,
+            fontFamily: 'var(--gl-font)',
+            color: 'var(--gl-color-text-subtle)',
+            lineHeight: 1.6,
+          }}
         >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          Data based on the Shared cM Project v4 (Bettinger/Larkin/Perl).
+          <br />
+          Probabilities are approximate. Use tree research to confirm relationships.
+        </div>
+      </div>
     </div>
   );
 }
