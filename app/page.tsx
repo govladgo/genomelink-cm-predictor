@@ -3,6 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { CmInput } from '@/components/predictor/CmInput';
 import { RelationshipList } from '@/components/predictor/RelationshipList';
 import { EndogamyPanel } from '@/components/predictor/EndogamyPanel';
+import { CommonAncestorPanel } from '@/components/predictor/CommonAncestorPanel';
 import { InfoBox } from '@/components/predictor/InfoBox';
 import { getRelationshipsForCM } from '@/data/sharedCmData';
 
@@ -10,6 +11,7 @@ export default function Home() {
   const [cmValue, setCmValue] = useState('');
   const [endogamyEnabled, setEndogamyEnabled] = useState(false);
   const [endogamyFactor, setEndogamyFactor] = useState(1.0);
+  const [populationId, setPopulationId] = useState('none');
 
   const numericCM = parseFloat(cmValue) || 0;
   const factor = endogamyEnabled ? endogamyFactor : 1.0;
@@ -101,13 +103,22 @@ export default function Home() {
           </div>
 
           {/* Endogamy panel */}
-          <div style={{ marginBottom: 24 }}>
+          <div style={{ marginBottom: 16 }}>
             <EndogamyPanel
               enabled={endogamyEnabled}
               factor={endogamyFactor}
               inputCM={numericCM}
               onEnabledChange={setEndogamyEnabled}
               onFactorChange={setEndogamyFactor}
+            />
+          </div>
+
+          {/* Common Ancestor cM panel — population-context view */}
+          <div style={{ marginBottom: 24 }}>
+            <CommonAncestorPanel
+              inputCM={numericCM}
+              populationId={populationId}
+              onPopulationChange={setPopulationId}
             />
           </div>
 
