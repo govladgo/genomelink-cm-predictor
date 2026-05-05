@@ -86,10 +86,13 @@ export function MatchList({ matches, selectedId, onSelect, loading }: MatchListP
                 key={m.id}
                 onClick={() => onSelect(m)}
                 style={{
+                  // Sized to match Match Hub's default MatchRow so the two
+                  // apps have identical row dimensions:
+                  //   avatar 36, name 14, meta 11, gap 12, padding 10/12
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 10,
-                  padding: '7px 10px',
+                  gap: 12,
+                  padding: '10px 12px',
                   width: '100%',
                   border: 'none',
                   borderRadius: 8,
@@ -109,16 +112,16 @@ export function MatchList({ matches, selectedId, onSelect, loading }: MatchListP
               >
                 <span
                   style={{
-                    width: 28,
-                    height: 28,
+                    width: 36,
+                    height: 36,
                     borderRadius: '50%',
                     background: m.avatarColor,
                     color: '#fff',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: 11,
-                    fontWeight: 700,
+                    fontSize: 13,
+                    fontWeight: 600,
                     flexShrink: 0,
                   }}
                 >
@@ -127,8 +130,8 @@ export function MatchList({ matches, selectedId, onSelect, loading }: MatchListP
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div
                     style={{
-                      fontSize: 12,
-                      fontWeight: isSelected ? 600 : 500,
+                      fontSize: 14,
+                      fontWeight: 600,
                       color: 'var(--gl-color-primary-dark)',
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
@@ -137,7 +140,7 @@ export function MatchList({ matches, selectedId, onSelect, loading }: MatchListP
                   >
                     {m.name}
                   </div>
-                  <div style={{ fontSize: 10, color: 'var(--gl-color-text-muted)' }}>
+                  <div style={{ fontSize: 11, color: 'var(--gl-color-text-muted)', marginTop: 2 }}>
                     {m.sharedCM} cM · {m.relationship}
                   </div>
                 </div>
