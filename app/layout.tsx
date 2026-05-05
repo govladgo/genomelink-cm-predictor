@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Shared cM Relationship Predictor - Genomelink',
-  description: 'Enter a shared centiMorgan value to see possible genetic relationships and their probabilities.',
+  title: 'Common Ancestor cM — Genomelink',
+  description: 'Predict the relationship behind a shared cM value, with population-context adjustments for endogamous and historically intermixed groups.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
