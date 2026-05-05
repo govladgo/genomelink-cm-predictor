@@ -162,13 +162,22 @@ export default function Home() {
               </p>
             </div>
           </div>
-          {userIndex.length > 0 && (
-            <UserSwitcher
-              users={userIndex}
-              activeId={activeUserId}
-              onSelect={handleSelectUser}
-            />
-          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <a
+              href="/help"
+              className="gl-btn gl-btn--secondary"
+              style={{ padding: '6px 12px', fontSize: 12, textDecoration: 'none' }}
+            >
+              How to use
+            </a>
+            {userIndex.length > 0 && (
+              <UserSwitcher
+                users={userIndex}
+                activeId={activeUserId}
+                onSelect={handleSelectUser}
+              />
+            )}
+          </div>
         </div>
 
         {/* Main 2-column layout */}
