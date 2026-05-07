@@ -210,6 +210,43 @@ export function suggestPopulationForAncestry(primaryRegion: string): string {
 }
 
 /**
+ * Return population contexts relevant to a match's ancestry composition.
+ * Always includes 'none'. Matches population associatedRegions against
+ * the match's ancestry regions (case-insensitive substring matching).
+ */
+export function getRelevantPopulations(
+  ancestryRegions: string[],
+): PopulationContext[] {
+  if (ancestryRegions.length === 0) return POPULATION_CONTEXTS;
+
+  const lowerRegions = ancestryRegions.map((r) => r.toLowerCase());
+
+  const relevant = POPULATION_CONTEXTS.filter((pop) => {
+    if (pop.id === 'none') return true;
+    return pop.associatedRegions.some((assoc) => {
+      const la = assoc.toLowerCase();
+      return lowerRegions.some(
+        (lr) => lr.includes(la) || la.includes(lr),
+      );
+    });
+  });
+
+  // If only 'none' matched, also check with suggestPopulationForAncestry
+  // as a fallback (it uses broader matching)
+  if (relevant.length <= 1 && ancestryRegions.length > 0) {
+    for (const region of ancestryRegions) {
+      const suggested = suggestPopulationForAncestry(region);
+      if (suggested !== 'none') {
+        const pop = POPULATION_CONTEXTS.find((p) => p.id === suggested);
+        if (pop && !relevant.includes(pop)) relevant.push(pop);
+      }
+    }
+  }
+
+  return relevant;
+}
+
+/**
  * For a given observed cM and population context, compute:
  *   - The cM attributable to recent ancestry (subtracting the population floor)
  *   - The set of relationship matches based on this residual

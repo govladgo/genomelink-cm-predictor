@@ -5,6 +5,7 @@ import { InfoBox } from '@/components/predictor/InfoBox';
 import { MatchList } from '@/components/predictor/MatchList';
 import { SegmentExclusionPanel } from '@/components/predictor/SegmentExclusionPanel';
 import { UserSwitcher } from '@/components/UserSwitcher';
+import { AppHeader } from '@/components/AppHeader';
 import { getRelationshipsForCM } from '@/data/sharedCmData';
 import { getPopulationById, suggestPopulationForAncestry } from '@/data/populationContext';
 import { computeDefaultExclusions, computeEffectiveCM } from '@/data/segmentExclusion';
@@ -141,74 +142,20 @@ export default function Home() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: '#F9FCFF',
-        padding: '24px 16px',
-      }}
-    >
-      <div style={{ maxWidth: 1180, margin: '0 auto' }}>
-        {/* Header */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 12,
-            marginBottom: 24,
-            flexWrap: 'wrap',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div
-              style={{
-                width: 36, height: 36, borderRadius: 8,
-                background: 'var(--gl-color-secondary)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#fff', fontSize: 16, fontWeight: 700,
-                fontFamily: 'var(--gl-font)', flexShrink: 0,
-              }}
-            >
-              GL
-            </div>
-            <div>
-              <h1
-                style={{
-                  margin: 0, fontSize: 20, fontWeight: 700,
-                  fontFamily: 'var(--gl-font)',
-                  color: 'var(--gl-color-primary-dark)', lineHeight: 1.3,
-                }}
-              >
-                Common Ancestor cM
-              </h1>
-              <p style={{
-                margin: '2px 0 0', fontSize: 12,
-                color: 'var(--gl-color-text-muted)',
-                fontFamily: 'var(--gl-font)',
-              }}>
-                Predict the relationship behind a shared cM, with population-context adjustments
-              </p>
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <a
-              href="/help"
-              className="gl-btn gl-btn--secondary"
-              style={{ padding: '6px 12px', fontSize: 12, textDecoration: 'none' }}
-            >
-              How to use
-            </a>
-            {userIndex.length > 0 && (
-              <UserSwitcher
-                users={userIndex}
-                activeId={activeUserId}
-                onSelect={handleSelectUser}
-              />
-            )}
-          </div>
-        </div>
+    <div style={{ minHeight: '100vh', background: '#F9FCFF' }}>
+      <AppHeader
+        rightSlot={
+          userIndex.length > 0 ? (
+            <UserSwitcher
+              users={userIndex}
+              activeId={activeUserId}
+              onSelect={handleSelectUser}
+            />
+          ) : undefined
+        }
+      />
 
+      <div style={{ maxWidth: 1180, margin: '0 auto', padding: '24px 16px' }}>
         {/* Main 2-column layout */}
         <div
           style={{
@@ -359,6 +306,7 @@ export default function Home() {
                       excludedIndices={excludedSegmentIndices}
                       onExcludedChange={setExcludedSegmentIndices}
                       effectiveCM={effectiveCM}
+                      ancestryComposition={selectedMatch.ancestryComposition}
                     />
                   )}
 

@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { Segment } from '@/data/types';
-import { POPULATION_CONTEXTS } from '@/data/populationContext';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
+import { Segment, AncestryComponent } from '@/data/types';
+import { POPULATION_CONTEXTS, getRelevantPopulations } from '@/data/populationContext';
 import { scoreSegments } from '@/data/segmentExclusion';
 
 interface SegmentExclusionPanelProps {
@@ -13,6 +13,7 @@ interface SegmentExclusionPanelProps {
   excludedIndices: Set<number>;
   onExcludedChange: (indices: Set<number>) => void;
   effectiveCM: number;
+  ancestryComposition?: AncestryComponent[];
 }
 
 function formatMb(bp: number): string {
@@ -26,6 +27,158 @@ function scoreBg(score: number): string {
   return 'transparent';
 }
 
+function ChevronIcon({ open }: { open: boolean }) {
+  return (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      fill="none"
+      style={{
+        transition: 'transform 0.15s',
+        transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+        flexShrink: 0,
+      }}
+    >
+      <path d="M3 4.5L6 7.5L9 4.5" stroke="#6786AC" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+interface PopulationDropdownProps {
+  populations: { id: string; label: string; era: string; sharedPopulationFloor: number }[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+}
+
+function PopulationDropdown({ populations, selectedId, onSelect }: PopulationDropdownProps) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [open]);
+
+  const selected = populations.find((p) => p.id === selectedId) ?? populations[0];
+
+  return (
+    <div ref={ref} style={{ position: 'relative', marginBottom: 12 }}>
+      <label
+        style={{
+          display: 'block',
+          fontSize: 10,
+          fontWeight: 600,
+          color: 'var(--gl-color-text-muted)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.04em',
+          marginBottom: 4,
+          fontFamily: 'var(--gl-font)',
+        }}
+      >
+        Population context
+      </label>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 8,
+          width: '100%',
+          padding: '8px 12px',
+          background: '#fff',
+          border: '1px solid var(--gl-color-border-light)',
+          borderRadius: 8,
+          cursor: 'pointer',
+          fontFamily: 'var(--gl-font)',
+          fontSize: 13,
+          color: '#263856',
+          textAlign: 'left',
+          lineHeight: '20px',
+        }}
+      >
+        <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {selected.label}
+        </span>
+        <ChevronIcon open={open} />
+      </button>
+
+      {open && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            marginTop: 4,
+            background: '#fff',
+            borderRadius: 8,
+            boxShadow: '0 5px 10px rgba(74, 93, 128, 0.16)',
+            overflow: 'hidden',
+            zIndex: 10,
+          }}
+        >
+          {populations.map((p) => {
+            const isSelected = p.id === selectedId;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => {
+                  onSelect(p.id);
+                  setOpen(false);
+                }}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 1,
+                  width: '100%',
+                  padding: '10px 16px',
+                  background: isSelected ? 'rgba(69, 130, 201, 0.06)' : '#fff',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  fontFamily: 'var(--gl-font)',
+                  transition: 'background 0.1s',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSelected) e.currentTarget.style.background = 'rgba(69, 130, 201, 0.04)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = isSelected ? 'rgba(69, 130, 201, 0.06)' : '#fff';
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 14,
+                    lineHeight: '20px',
+                    color: '#263856',
+                    fontWeight: isSelected ? 600 : 400,
+                  }}
+                >
+                  {p.label}
+                </span>
+                {p.era && (
+                  <span style={{ fontSize: 11, lineHeight: '16px', color: '#6786AC' }}>
+                    {p.era}
+                    {p.sharedPopulationFloor > 0 && ` · ~${p.sharedPopulationFloor} cM baseline`}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function SegmentExclusionPanel({
   segments,
   totalCM,
@@ -34,6 +187,7 @@ export function SegmentExclusionPanel({
   excludedIndices,
   onExcludedChange,
   effectiveCM,
+  ancestryComposition,
 }: SegmentExclusionPanelProps) {
   const excludedCM = totalCM - effectiveCM;
   const includedCount = segments.length - excludedIndices.size;
@@ -42,6 +196,11 @@ export function SegmentExclusionPanel({
   const population = useMemo(
     () => POPULATION_CONTEXTS.find((p) => p.id === populationId) ?? POPULATION_CONTEXTS[0],
     [populationId],
+  );
+
+  const relevantPopulations = useMemo(
+    () => getRelevantPopulations((ancestryComposition ?? []).map((a) => a.region)),
+    [ancestryComposition],
   );
 
   const scored = useMemo(
@@ -118,35 +277,11 @@ export function SegmentExclusionPanel({
       </div>
 
       {/* Population selector */}
-      <div style={{ marginBottom: 12 }}>
-        <label
-          style={{
-            display: 'block',
-            fontSize: 10,
-            fontWeight: 600,
-            color: 'var(--gl-color-text-muted)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.04em',
-            marginBottom: 4,
-            fontFamily: 'var(--gl-font)',
-          }}
-        >
-          Population context
-        </label>
-        <select
-          value={populationId}
-          onChange={(e) => onPopulationChange(e.target.value)}
-          className="gl-select"
-          style={{ width: '100%', maxWidth: 320, fontSize: 12 }}
-        >
-          {POPULATION_CONTEXTS.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.label}
-              {p.era ? ` — ${p.era}` : ''}
-            </option>
-          ))}
-        </select>
-      </div>
+      <PopulationDropdown
+        populations={relevantPopulations}
+        selectedId={populationId}
+        onSelect={onPopulationChange}
+      />
 
       {/* Summary tiles */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
@@ -307,33 +442,46 @@ export function SegmentExclusionPanel({
       <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
         <button
           onClick={includeAll}
-          className="gl-btn gl-btn--secondary"
-          style={{ padding: '4px 10px', fontSize: 11 }}
+          style={{
+            padding: '8px 16px',
+            fontSize: 12,
+            fontWeight: 500,
+            fontFamily: 'var(--gl-font)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.02em',
+            lineHeight: '16px',
+            color: '#263856',
+            background: 'transparent',
+            border: '1px solid rgba(38, 56, 86, 0.6)',
+            borderRadius: 32,
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+          }}
         >
           Include all
         </button>
         <button
           onClick={excludeAll}
-          className="gl-btn gl-btn--secondary"
-          style={{ padding: '4px 10px', fontSize: 11 }}
+          style={{
+            padding: '8px 16px',
+            fontSize: 12,
+            fontWeight: 500,
+            fontFamily: 'var(--gl-font)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.02em',
+            lineHeight: '16px',
+            color: '#263856',
+            background: 'transparent',
+            border: '1px solid rgba(38, 56, 86, 0.6)',
+            borderRadius: 32,
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+          }}
         >
           Exclude all
         </button>
       </div>
 
-      {/* Disclaimer */}
-      <div
-        style={{
-          fontSize: 9,
-          color: 'var(--gl-color-text-muted)',
-          textAlign: 'center',
-          paddingTop: 6,
-          borderTop: '1px solid var(--gl-color-border-light)',
-        }}
-      >
-        Segments in known IBD hotspot regions (HLA, pericentromeric, founder haplotypes) are prioritized for exclusion.
-        Based on Gusev 2012, Li 2014, Bherer 2013.
-      </div>
     </div>
   );
 }

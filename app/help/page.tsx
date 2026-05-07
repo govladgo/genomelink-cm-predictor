@@ -125,8 +125,8 @@ export default function CmPredictorHelpPage() {
           <section style={sectionGroup}>
             <h1 style={h1Style}>How to use Common Ancestor cM</h1>
             <p style={tagline}>
-              Predict the relationship behind a shared centiMorgan value, with adjustments for populations
-              that share DNA from historical common ancestry.
+              Predict the relationship behind a shared centiMorgan value, with segment-level analysis
+              and population-aware adjustments.
             </p>
 
             <p style={bodyText}>
@@ -137,8 +137,8 @@ export default function CmPredictorHelpPage() {
             </p>
 
             <p style={bodyText}>
-              This tool shows the full distribution of possible relationships and lets you separate the
-              &ldquo;recent ancestor&rdquo; signal from the population baseline.
+              This tool shows the full distribution of possible relationships and lets you exclude
+              segments likely inherited from population-level ancestry to reveal the true relationship signal.
             </p>
           </section>
 
@@ -147,20 +147,18 @@ export default function CmPredictorHelpPage() {
             <h2 style={h2Style}>Quick start</h2>
             <ol style={orderedList}>
               <li>Pick a demo user from the switcher in the top-right header.</li>
-              <li>Click any match in the left list to load their shared cM into the predictor.</li>
-              <li>Read the relationship histogram on the right — each bar is a possible relationship with its probability.</li>
-              <li>Pick a <strong>Common Ancestor population</strong> if you and your match share ancestry from one of the eight historical groups.</li>
-              <li>
-                Compare the population-adjusted predictions (after subtracting the shared-population baseline) against the raw histogram.
-              </li>
+              <li>Click any match in the left list — predictions appear immediately on the right.</li>
+              <li>For matches with 2+ segments, the <strong>Segment Analysis</strong> panel lets you exclude segments likely inherited from population-level ancestry.</li>
+              <li>The <strong>population context</strong> dropdown auto-selects based on the match&apos;s ancestry and filters to only show relevant populations.</li>
+              <li>Review the relationship list below — each entry is a possible relationship ranked by probability.</li>
             </ol>
 
             <div style={tipCallout}>
               <div style={calloutTitle}>Tip</div>
               <div>
-                The Common Ancestor population dropdown is sticky — pick one and it stays for the next match
-                you click. The panel only appears for distant relationships (under 200 cM, roughly 2nd cousin
-                and further); for close relatives the relationship is unambiguous from cM alone.
+                The Segment Analysis panel only appears for matches with multiple segments.
+                For close relatives (parents, siblings, grandparents) the relationship is unambiguous
+                from cM alone — no segment exclusion needed.
               </div>
             </div>
           </section>
@@ -176,7 +174,7 @@ export default function CmPredictorHelpPage() {
                   What is a centiMorgan?
                 </a>
                 <a href="#histogram" style={tocLink}>
-                  Reading the relationship histogram
+                  Reading the relationship list
                 </a>
                 <a href="#one-cm-many-relationships" style={tocLink}>
                   Why one cM value fits several relationships
@@ -186,18 +184,18 @@ export default function CmPredictorHelpPage() {
                 </a>
               </div>
               <div style={tocColumn}>
-                <div style={tocGroupTitle}>Common Ancestor cM</div>
+                <div style={tocGroupTitle}>Segment analysis</div>
+                <a href="#segment-analysis" style={tocLink}>
+                  How segment exclusion works
+                </a>
                 <a href="#population-context" style={tocLink}>
-                  What &ldquo;common ancestor population&rdquo; means
+                  Population context and auto-detection
                 </a>
                 <a href="#populations-table" style={tocLink}>
                   The 8 supported populations
                 </a>
-                <a href="#how-baseline-works" style={tocLink}>
-                  How the population baseline is subtracted
-                </a>
-                <a href="#close-vs-distant" style={tocLink}>
-                  When the panel appears (close vs. distant)
+                <a href="#ibd-hotspots" style={tocLink}>
+                  IBD hotspot regions
                 </a>
                 <div style={{ ...tocGroupTitle, marginTop: 16 }}>Demo &amp; glossary</div>
                 <a href="#demo-data" style={tocLink}>
@@ -225,13 +223,13 @@ export default function CmPredictorHelpPage() {
             </p>
           </section>
 
-          {/* === Reading the histogram === */}
+          {/* === Reading the relationship list === */}
           <section id="histogram" style={sectionGroup}>
-            <h3 style={h3Style}>Reading the relationship histogram</h3>
+            <h3 style={h3Style}>Reading the relationship list</h3>
             <p style={bodyText}>
-              The histogram below the cM input shows every relationship class compatible with your input cM,
-              ranked by probability. The probabilities are normalized so they sum to 100% across all
-              compatible classes.
+              When you click a match, the relationship list shows every relationship class compatible with
+              the shared cM, ranked by probability. If you&apos;ve excluded segments, the predictions use the
+              reduced &ldquo;effective cM&rdquo; instead of the raw total.
             </p>
             <p style={bodyText}>
               The top relationship is the <em>statistical best fit</em>, but several others may be similarly
@@ -263,19 +261,49 @@ export default function CmPredictorHelpPage() {
             </p>
           </section>
 
-          {/* === Population context === */}
-          <section id="population-context" style={sectionGroup}>
-            <h3 style={h3Style}>What &ldquo;common ancestor population&rdquo; means</h3>
+          {/* === Segment analysis === */}
+          <section id="segment-analysis" style={sectionGroup}>
+            <h3 style={h3Style}>How segment exclusion works</h3>
             <p style={bodyText}>
-              For populations with significant historical endogamy or shared bottleneck history, two
-              unrelated members can share substantial DNA simply by belonging to that population. The shared
-              cM doesn&apos;t come from a single recent ancestor — it comes from many distant ones common to
-              the whole group.
+              For matches with two or more segments, the Segment Analysis panel lets you exclude
+              individual segments from the cM total. This is useful when some segments are likely
+              inherited from population-level shared ancestry (endogamy) rather than a recent common ancestor.
             </p>
             <p style={bodyText}>
-              Examples: Polish and Lithuanian descendants of the Polish-Lithuanian Commonwealth; Ashkenazi
-              Jews descended from a medieval bottleneck; Mennonite/Amish communities; Iberian colonial
-              settler populations in Latin America. Each has a known population-level cM baseline.
+              Each segment is scored by two factors: whether it overlaps a known IBD hotspot region
+              for the selected population, and its size (smaller segments are more likely to be
+              population-inherited, since they&apos;ve had more generations of recombination). Segments
+              scoring highest are auto-excluded up to the population&apos;s baseline cM floor.
+            </p>
+            <p style={bodyText}>
+              You can override the defaults by clicking any segment row to toggle it. The
+              &ldquo;Include all&rdquo; and &ldquo;Exclude all&rdquo; buttons let you start fresh.
+              The effective cM (after exclusions) feeds directly into the relationship predictions below.
+            </p>
+
+            <div style={tipCallout}>
+              <div style={calloutTitle}>Example</div>
+              <div>
+                Two Ashkenazi-descended people share <strong>170 cM</strong> across 9 segments. With the Ashkenazi
+                population context selected, the tool auto-excludes ~80 cM worth of small segments in known
+                hotspot regions. The remaining ~90 cM points to a 3rd cousin — not the 2nd cousin that
+                the raw 170 cM would suggest.
+              </div>
+            </div>
+          </section>
+
+          {/* === Population context === */}
+          <section id="population-context" style={sectionGroup}>
+            <h3 style={h3Style}>Population context and auto-detection</h3>
+            <p style={bodyText}>
+              The population context dropdown in the Segment Analysis panel controls which IBD hotspot
+              regions are checked and how much baseline cM to subtract. When you click a match,
+              the tool automatically selects the most likely population based on the match&apos;s ancestry composition.
+            </p>
+            <p style={bodyText}>
+              The dropdown only shows populations relevant to each match&apos;s ancestry — an East Asian
+              match won&apos;t show Ashkenazi or Acadian options. You can always override the selection
+              or switch to &ldquo;None / Outbred&rdquo; to disable population-level adjustments entirely.
             </p>
           </section>
 
@@ -340,54 +368,24 @@ export default function CmPredictorHelpPage() {
             </p>
           </section>
 
-          {/* === How baseline works === */}
-          <section id="how-baseline-works" style={sectionGroup}>
-            <h3 style={h3Style}>How the population baseline is subtracted</h3>
+          {/* === IBD hotspots === */}
+          <section id="ibd-hotspots" style={sectionGroup}>
+            <h3 style={h3Style}>IBD hotspot regions</h3>
             <p style={bodyText}>
-              The algorithm is straightforward:
+              Certain chromosomal regions are known to produce excess IBD sharing in specific populations.
+              These include regions under balancing selection (like the HLA/MHC complex on chromosome 6),
+              pericentromeric regions with low recombination, and population-specific founder haplotypes.
             </p>
-            <pre style={codeBlock}>
-{`recentAncestorCM = max(0, observedCM - population.sharedPopulationFloor)
-predictions = predictRelationships(recentAncestorCM)`}
-            </pre>
             <p style={bodyText}>
-              We subtract the population&apos;s baseline cM from your observed value, then run the residual
-              through the same V4 predictor. The result: a more conservative estimate when the population
-              context applies.
+              When a segment overlaps one of these hotspot regions, it&apos;s flagged with an
+              &ldquo;IBD&rdquo; badge in the segment list. Hotspot overlap is the strongest signal
+              in the exclusion scoring — a segment sitting squarely in a known Ashkenazi founder
+              haplotype region is very likely population-inherited, regardless of its size.
             </p>
-
-            <div style={tipCallout}>
-              <div style={calloutTitle}>Example</div>
-              <div>
-                Two Ashkenazi-descended people share <strong>100 cM</strong>. With the Ashkenazi baseline of ~80 cM,
-                only ~20 cM is attributable to a recent common ancestor — that&apos;s 5th-6th cousin range, not
-                3rd cousin as a naive 100 cM reading would suggest.
-              </div>
-            </div>
-          </section>
-
-          {/* === Close vs distant === */}
-          <section id="close-vs-distant" style={sectionGroup}>
-            <h3 style={h3Style}>When the panel appears (close vs. distant)</h3>
             <p style={bodyText}>
-              The Common Ancestor panel only appears when the input is{' '}
-              <strong>under 200 cM</strong> — roughly 2nd cousin and more distant. Above 200 cM the
-              relationship is unambiguous from cM alone (1st cousins, half-siblings, parents, siblings,
-              grandparents) and population context just adds noise to a clear signal.
-            </p>
-            <div style={tipCallout}>
-              <div style={calloutTitle}>Why 200 cM?</div>
-              <div>
-                The Shared cM Project V4 places the lower edge of the 2nd-cousin range at ~200 cM. Below
-                that, multiple distant-cousin relationships overlap heavily — exactly where population
-                context (Baltic/Slavic, Ashkenazi, etc.) helps disambiguate.
-              </div>
-            </div>
-            <p style={bodyText}>
-              The dropdown is also sticky: once you pick a population, it stays selected as you click
-              through different matches in the sidebar. The app deliberately doesn&apos;t auto-suggest a
-              population from your profile because that requires heavy validation and is easy to get
-              wrong — you&apos;re the best judge of which population context applies.
+              Segments that are triangulated (shared with a third person) are marked with
+              a &ldquo;TRI&rdquo; badge — these are more likely to represent recent shared ancestry
+              and are worth keeping included.
             </p>
           </section>
 
@@ -417,8 +415,11 @@ predictions = predictRelationships(recentAncestorCM)`}
               <dt style={dt}>Shared cM</dt>
               <dd style={dd}>The total cM across all matching segments between you and another person.</dd>
 
-              <dt style={dt}>MRCA (Most Recent Common Ancestor)</dt>
-              <dd style={dd}>The most recent person from whom both you and a match descend. Genealogy aims to identify them.</dd>
+              <dt style={dt}>Effective cM</dt>
+              <dd style={dd}>The cM remaining after excluding segments flagged as population-inherited. This value drives the relationship predictions.</dd>
+
+              <dt style={dt}>MRCA</dt>
+              <dd style={dd}>Most Recent Common Ancestor — the most recent person from whom both you and a match descend.</dd>
 
               <dt style={dt}>Endogamy</dt>
               <dd style={dd}>Sustained marriage within a community. Inflates shared cM because cousins share ancestors many times over.</dd>
@@ -426,8 +427,17 @@ predictions = predictRelationships(recentAncestorCM)`}
               <dt style={dt}>IBD (Identity-by-Descent)</dt>
               <dd style={dd}>A DNA segment shared because both people inherited it from a common ancestor (rather than by random chance).</dd>
 
+              <dt style={dt}>IBD hotspot</dt>
+              <dd style={dd}>A chromosomal region where members of an endogamous population commonly share DNA from ancient ancestry, not recent relationships.</dd>
+
               <dt style={dt}>Segment</dt>
               <dd style={dd}>A continuous run of DNA shared between you and a match — defined by chromosome, start position, end position, and length in cM.</dd>
+
+              <dt style={dt}>Triangulated</dt>
+              <dd style={dd}>A segment shared with a third person as well, suggesting it came from a recent common ancestor rather than population-level ancestry.</dd>
+
+              <dt style={dt}>Population floor</dt>
+              <dd style={dd}>The approximate cM that two unrelated members of an endogamous population share by default from their shared history.</dd>
 
               <dt style={dt}>V4 Shared cM Project</dt>
               <dd style={dd}>The 4th-version (2020) crowdsourced reference table from Blaine Bettinger et al., used here for relationship probability lookup.</dd>
@@ -618,18 +628,6 @@ const tdNum: React.CSSProperties = {
 
 const tdAlt: React.CSSProperties = {
   background: 'rgba(245, 248, 252, 0.6)',
-};
-
-const codeBlock: React.CSSProperties = {
-  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-  fontSize: 13,
-  background: '#F5F8FC',
-  border: '1px solid rgba(201, 214, 228, 0.6)',
-  borderRadius: 8,
-  padding: '12px 14px',
-  margin: 0,
-  whiteSpace: 'pre-wrap',
-  color: '#263856',
 };
 
 const glossary: React.CSSProperties = {
