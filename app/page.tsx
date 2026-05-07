@@ -40,13 +40,11 @@ export default function Home() {
     [matches, selectedMatchId],
   );
 
-  const segments: Segment[] = (selectedMatch?.segments ?? []) as Segment[];
-  const hasMultipleSegments = segments.length >= 2;
-
-  const populationFloor = useMemo(
-    () => getPopulationById(populationId).sharedPopulationFloor,
-    [populationId],
+  const segments: Segment[] = useMemo(
+    () => (selectedMatch?.segments ?? []) as Segment[],
+    [selectedMatch],
   );
+  const hasMultipleSegments = segments.length >= 2;
 
   const effectiveCM = useMemo(() => {
     if (!selectedMatch) return 0;
