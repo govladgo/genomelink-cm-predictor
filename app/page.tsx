@@ -6,7 +6,7 @@ import { MatchList } from '@/components/predictor/MatchList';
 import { SegmentExclusionPanel } from '@/components/predictor/SegmentExclusionPanel';
 import { UserSwitcher } from '@/components/UserSwitcher';
 import { getRelationshipsForCM } from '@/data/sharedCmData';
-import { getPopulationById } from '@/data/populationContext';
+import { getPopulationById, suggestPopulationForAncestry } from '@/data/populationContext';
 import { computeDefaultExclusions, computeEffectiveCM } from '@/data/segmentExclusion';
 import {
   loadUserIndex, loadUserDataset,
@@ -112,9 +112,17 @@ export default function Home() {
 
   const handleSelectMatch = (match: DNAMatch) => {
     setSelectedMatchId(match.id);
+
+    // Auto-suggest population from the match's ancestry composition
+    let popId = 'none';
+    if (match.ancestryComposition && match.ancestryComposition.length > 0) {
+      popId = suggestPopulationForAncestry(match.ancestryComposition[0].region);
+    }
+    setPopulationId(popId);
+
     const segs = (match.segments ?? []) as Segment[];
     if (segs.length >= 2) {
-      recomputeExclusions(segs, populationId);
+      recomputeExclusions(segs, popId);
     } else {
       setExcludedSegmentIndices(new Set());
     }
