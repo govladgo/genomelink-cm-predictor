@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import { Segment } from '@/data/types';
 import { POPULATION_CONTEXTS } from '@/data/populationContext';
-import { scoreSegments, ScoredSegment } from '@/data/segmentExclusion';
+import { scoreSegments } from '@/data/segmentExclusion';
 
 interface SegmentExclusionPanelProps {
   segments: Segment[];
@@ -18,12 +18,6 @@ interface SegmentExclusionPanelProps {
 function formatMb(bp: number): string {
   const mb = bp / 1_000_000;
   return mb >= 1 ? `${mb.toFixed(1)} Mb` : `${(bp / 1_000).toFixed(0)} kb`;
-}
-
-function scoreColor(score: number): string {
-  if (score >= 0.5) return '#d46a0e';
-  if (score >= 0.25) return '#c4930a';
-  return 'var(--gl-color-text-muted)';
 }
 
 function scoreBg(score: number): string {
