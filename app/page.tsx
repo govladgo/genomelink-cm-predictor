@@ -62,7 +62,7 @@ export default function Home() {
   const recomputeExclusions = useCallback(
     (segs: Segment[], popId: string) => {
       const floor = getPopulationById(popId).sharedPopulationFloor;
-      setExcludedSegmentIndices(computeDefaultExclusions(segs, floor));
+      setExcludedSegmentIndices(computeDefaultExclusions(segs, floor, popId));
     },
     [],
   );

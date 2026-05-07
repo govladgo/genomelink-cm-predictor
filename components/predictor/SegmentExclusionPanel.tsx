@@ -3,6 +3,7 @@
 import React, { useMemo } from 'react';
 import { Segment } from '@/data/types';
 import { POPULATION_CONTEXTS } from '@/data/populationContext';
+import { scoreSegments, ScoredSegment } from '@/data/segmentExclusion';
 
 interface SegmentExclusionPanelProps {
   segments: Segment[];
@@ -19,6 +20,18 @@ function formatMb(bp: number): string {
   return mb >= 1 ? `${mb.toFixed(1)} Mb` : `${(bp / 1_000).toFixed(0)} kb`;
 }
 
+function scoreColor(score: number): string {
+  if (score >= 0.5) return '#d46a0e';
+  if (score >= 0.25) return '#c4930a';
+  return 'var(--gl-color-text-muted)';
+}
+
+function scoreBg(score: number): string {
+  if (score >= 0.5) return 'rgba(255, 124, 17, 0.10)';
+  if (score >= 0.25) return 'rgba(196, 147, 10, 0.08)';
+  return 'transparent';
+}
+
 export function SegmentExclusionPanel({
   segments,
   totalCM,
@@ -32,11 +45,26 @@ export function SegmentExclusionPanel({
   const includedCount = segments.length - excludedIndices.size;
   const excludedCount = excludedIndices.size;
 
+  const population = useMemo(
+    () => POPULATION_CONTEXTS.find((p) => p.id === populationId) ?? POPULATION_CONTEXTS[0],
+    [populationId],
+  );
+
+  const scored = useMemo(
+    () => scoreSegments(segments, populationId, population.sharedPopulationFloor),
+    [segments, populationId, population.sharedPopulationFloor],
+  );
+
   const sortedSegments = useMemo(() => {
-    return segments
-      .map((s, i) => ({ ...s, originalIndex: i }))
+    return scored
+      .map((sc) => ({ ...segments[sc.index], ...sc }))
       .sort((a, b) => b.cM - a.cM);
-  }, [segments]);
+  }, [segments, scored]);
+
+  const hotspotSegmentCount = useMemo(
+    () => scored.filter((s) => s.hotspotOverlap > 0).length,
+    [scored],
+  );
 
   const toggleSegment = (index: number) => {
     const next = new Set(excludedIndices);
@@ -52,9 +80,9 @@ export function SegmentExclusionPanel({
   const includeAll = () => onExcludedChange(new Set());
 
   const excludeAll = () => {
-    const largest = sortedSegments[0];
+    const largestIdx = sortedSegments[0]?.index;
     const all = new Set(segments.map((_, i) => i));
-    all.delete(largest.originalIndex);
+    if (largestIdx != null) all.delete(largestIdx);
     onExcludedChange(all);
   };
 
@@ -89,6 +117,9 @@ export function SegmentExclusionPanel({
           }}
         >
           {segments.length} segments
+          {hotspotSegmentCount > 0 && populationId !== 'none' && (
+            <> · {hotspotSegmentCount} in IBD hotspots</>
+          )}
         </span>
       </div>
 
@@ -176,7 +207,7 @@ export function SegmentExclusionPanel({
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '28px 52px 1fr 60px 52px',
+            gridTemplateColumns: '28px 48px 1fr 56px 48px',
             gap: 0,
             padding: '6px 8px',
             borderBottom: '1px solid var(--gl-color-border-light)',
@@ -191,27 +222,28 @@ export function SegmentExclusionPanel({
         >
           <span />
           <span>Chr</span>
-          <span>Size</span>
+          <span>Region</span>
           <span style={{ textAlign: 'right' }}>cM</span>
           <span style={{ textAlign: 'right' }}>SNPs</span>
         </div>
-        <div style={{ maxHeight: 240, overflowY: 'auto' }}>
+        <div style={{ maxHeight: 280, overflowY: 'auto' }}>
           {sortedSegments.map((seg) => {
-            const isExcluded = excludedIndices.has(seg.originalIndex);
+            const isExcluded = excludedIndices.has(seg.index);
             const sizeBp = seg.endBp - seg.startBp;
+            const hasHotspot = seg.hotspotLabels.length > 0;
             return (
               <div
-                key={seg.originalIndex}
-                onClick={() => toggleSegment(seg.originalIndex)}
+                key={seg.index}
+                onClick={() => toggleSegment(seg.index)}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '28px 52px 1fr 60px 52px',
+                  gridTemplateColumns: '28px 48px 1fr 56px 48px',
                   gap: 0,
                   padding: '5px 8px',
                   borderBottom: '1px solid var(--gl-color-border-light)',
                   cursor: 'pointer',
                   opacity: isExcluded ? 0.45 : 1,
-                  background: isExcluded ? 'rgba(0,0,0,0.02)' : 'transparent',
+                  background: isExcluded ? 'rgba(0,0,0,0.02)' : scoreBg(seg.populationScore),
                   transition: 'opacity 0.15s, background 0.15s',
                   fontSize: 12,
                   fontFamily: 'var(--gl-font)',
@@ -222,7 +254,7 @@ export function SegmentExclusionPanel({
                   <input
                     type="checkbox"
                     checked={!isExcluded}
-                    onChange={() => toggleSegment(seg.originalIndex)}
+                    onChange={() => toggleSegment(seg.index)}
                     onClick={(e) => e.stopPropagation()}
                     style={{ margin: 0, cursor: 'pointer', accentColor: 'var(--gl-color-secondary)' }}
                   />
@@ -230,21 +262,38 @@ export function SegmentExclusionPanel({
                 <span style={{ fontWeight: 600, color: 'var(--gl-color-primary-dark)' }}>
                   {seg.chromosome}
                 </span>
-                <span style={{ color: 'var(--gl-color-text-muted)', fontSize: 11 }}>
-                  {formatMb(sizeBp)}
+                <span style={{ color: 'var(--gl-color-text-muted)', fontSize: 11, lineHeight: 1.3 }}>
+                  <span>{formatMb(sizeBp)}</span>
                   {seg.isTriangulated && (
                     <span
                       style={{
-                        marginLeft: 6,
-                        fontSize: 9,
+                        marginLeft: 5,
+                        fontSize: 8,
                         fontWeight: 600,
                         color: 'var(--gl-color-positive)',
                         background: 'rgba(122, 191, 67, 0.1)',
-                        padding: '1px 4px',
+                        padding: '1px 3px',
                         borderRadius: 3,
                       }}
                     >
                       TRI
+                    </span>
+                  )}
+                  {hasHotspot && (
+                    <span
+                      title={seg.hotspotLabels.join(', ')}
+                      style={{
+                        marginLeft: 5,
+                        fontSize: 8,
+                        fontWeight: 600,
+                        color: '#d46a0e',
+                        background: 'rgba(255, 124, 17, 0.10)',
+                        padding: '1px 3px',
+                        borderRadius: 3,
+                        cursor: 'help',
+                      }}
+                    >
+                      IBD
                     </span>
                   )}
                 </span>
@@ -288,7 +337,8 @@ export function SegmentExclusionPanel({
           borderTop: '1px solid var(--gl-color-border-light)',
         }}
       >
-        Segment exclusion is an approximation. Smaller segments are more likely population-inherited; larger segments more likely from a recent ancestor.
+        Segments in known IBD hotspot regions (HLA, pericentromeric, founder haplotypes) are prioritized for exclusion.
+        Based on Gusev 2012, Li 2014, Bherer 2013.
       </div>
     </div>
   );
