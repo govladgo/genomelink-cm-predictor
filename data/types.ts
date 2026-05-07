@@ -17,8 +17,15 @@ export interface SharedCmEntryV4 {
   generationGap: number;
 }
 
-// Subset of the DNAMatch shape used by the matches list — just the fields
-// we need to render and click-through. The full shape lives in match-hub.
+export interface Segment {
+  chromosome: number;
+  startBp: number;
+  endBp: number;
+  cM: number;
+  snps: number;
+  isTriangulated: boolean;
+}
+
 export interface AncestryComponent {
   region: string;
   percentage: number;
@@ -34,7 +41,7 @@ export interface DNAMatch {
   source: '23andme' | 'myheritage' | 'ftdna' | 'gedmatch' | 'ancestry' | 'manual' | 'other';
   profileType: 'open' | 'limited';
   isNew: boolean;
-  segments: unknown[];        // not rendered here; cM Predictor doesn't need the segment shape
+  segments: Segment[];
   tags: string[];
   avatarColor: string;
   initials: string;

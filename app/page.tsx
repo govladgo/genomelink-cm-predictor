@@ -1,26 +1,19 @@
 'use client';
-import React, { useState, useMemo, useEffect } from 'react';
-import { CmInput } from '@/components/predictor/CmInput';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { RelationshipList } from '@/components/predictor/RelationshipList';
-import { CommonAncestorPanel } from '@/components/predictor/CommonAncestorPanel';
 import { InfoBox } from '@/components/predictor/InfoBox';
 import { MatchList } from '@/components/predictor/MatchList';
+import { SegmentExclusionPanel } from '@/components/predictor/SegmentExclusionPanel';
 import { UserSwitcher } from '@/components/UserSwitcher';
 import { getRelationshipsForCM } from '@/data/sharedCmData';
+import { getPopulationById } from '@/data/populationContext';
+import { computeDefaultExclusions, computeEffectiveCM } from '@/data/segmentExclusion';
 import {
   loadUserIndex, loadUserDataset,
   getSelectedUserIdFromUrl, setSelectedUserIdInUrl,
   DemoUser,
 } from '@/data/adapters/realData';
-import { DNAMatch } from '@/data/types';
-
-/**
- * Above this cM, the relationship is unambiguous from cM alone (2nd cousin
- * and closer); the Common Ancestor population panel adds noise rather than
- * signal so we hide it. Calibrated against the Shared cM Project V4: 200 cM
- * is the lower edge of the 2nd-cousin range.
- */
-const COMMON_ANCESTOR_MAX_CM = 200;
+import { DNAMatch, Segment } from '@/data/types';
 
 interface IndexEntry {
   id: string;
@@ -32,32 +25,50 @@ interface IndexEntry {
 }
 
 export default function Home() {
-  const [cmValue, setCmValue] = useState('');
   const [populationId, setPopulationId] = useState('none');
+  const [excludedSegmentIndices, setExcludedSegmentIndices] = useState<Set<number>>(new Set());
 
-  // Real-data state
   const [userIndex, setUserIndex] = useState<IndexEntry[]>([]);
   const [activeUserId, setActiveUserId] = useState<string>('user-1');
-  // activeUser is loaded but no longer drives auto-suggest — kept in case
-  // future per-user features need it. Underscore-prefixed to avoid lint.
   const [, setActiveUser] = useState<DemoUser | null>(null);
   const [matches, setMatches] = useState<DNAMatch[]>([]);
   const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
   const [loadingMatches, setLoadingMatches] = useState(true);
 
-  const numericCM = parseFloat(cmValue) || 0;
+  const selectedMatch = useMemo(
+    () => matches.find((m) => m.id === selectedMatchId) ?? null,
+    [matches, selectedMatchId],
+  );
+
+  const segments: Segment[] = (selectedMatch?.segments ?? []) as Segment[];
+  const hasMultipleSegments = segments.length >= 2;
+
+  const populationFloor = useMemo(
+    () => getPopulationById(populationId).sharedPopulationFloor,
+    [populationId],
+  );
+
+  const effectiveCM = useMemo(() => {
+    if (!selectedMatch) return 0;
+    if (!hasMultipleSegments || excludedSegmentIndices.size === 0) return selectedMatch.sharedCM;
+    return computeEffectiveCM(segments, excludedSegmentIndices);
+  }, [selectedMatch, hasMultipleSegments, segments, excludedSegmentIndices]);
 
   const results = useMemo(() => {
-    if (numericCM <= 0) return [];
-    return getRelationshipsForCM(numericCM);
-  }, [numericCM]);
-
-  /** Population-context only meaningful for distant matches (< 200 cM). */
-  const showCommonAncestorPanel = numericCM > 0 && numericCM < COMMON_ANCESTOR_MAX_CM;
+    if (effectiveCM <= 0) return [];
+    return getRelationshipsForCM(effectiveCM);
+  }, [effectiveCM]);
 
   const topResult = results.length > 0 ? results[0] : null;
 
-  // Load user index + active user's data on mount
+  const recomputeExclusions = useCallback(
+    (segs: Segment[], popId: string) => {
+      const floor = getPopulationById(popId).sharedPopulationFloor;
+      setExcludedSegmentIndices(computeDefaultExclusions(segs, floor));
+    },
+    [],
+  );
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -89,6 +100,7 @@ export default function Home() {
     setActiveUserId(userId);
     setSelectedUserIdInUrl(userId);
     setSelectedMatchId(null);
+    setExcludedSegmentIndices(new Set());
     try {
       const ds = await loadUserDataset(userId);
       setActiveUser(ds.user);
@@ -102,17 +114,23 @@ export default function Home() {
 
   const handleSelectMatch = (match: DNAMatch) => {
     setSelectedMatchId(match.id);
-    setCmValue(String(match.sharedCM));
+    const segs = (match.segments ?? []) as Segment[];
+    if (segs.length >= 2) {
+      recomputeExclusions(segs, populationId);
+    } else {
+      setExcludedSegmentIndices(new Set());
+    }
 
-    // Population dropdown is sticky — keep whatever the user last picked.
-    // We deliberately do NOT auto-suggest from the user's profile because
-    // that requires heavy validation and can be wrong; the user is the
-    // best judge of which population context applies.
-
-    // Smooth-scroll the prediction card into view on narrow screens
     if (typeof window !== 'undefined' && window.innerWidth < 1024) {
       const el = document.getElementById('prediction-card');
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handlePopulationChange = (newPopId: string) => {
+    setPopulationId(newPopId);
+    if (hasMultipleSegments) {
+      recomputeExclusions(segments, newPopId);
     }
   };
 
@@ -222,10 +240,19 @@ export default function Home() {
                 padding: 24,
               }}
             >
-              {/* Selected match callout */}
-              {selectedMatchId && matches.find((m) => m.id === selectedMatchId) && (() => {
-                const m = matches.find((x) => x.id === selectedMatchId)!;
-                return (
+              {!selectedMatch ? (
+                <div
+                  style={{
+                    textAlign: 'center', padding: '60px 0',
+                    fontSize: 14, fontFamily: 'var(--gl-font)',
+                    color: 'var(--gl-color-text-muted)',
+                  }}
+                >
+                  Select a match from the list to see relationship predictions
+                </div>
+              ) : (
+                <>
+                  {/* Selected match callout */}
                   <div
                     style={{
                       display: 'flex',
@@ -241,121 +268,156 @@ export default function Home() {
                     <span
                       style={{
                         width: 32, height: 32, borderRadius: '50%',
-                        background: m.avatarColor, color: '#fff',
+                        background: selectedMatch.avatarColor, color: '#fff',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: 12, fontWeight: 700, flexShrink: 0,
                       }}
                     >
-                      {m.initials}
+                      {selectedMatch.initials}
                     </span>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--gl-color-primary-dark)' }}>
-                        Predicting for {m.name}
+                        Predicting for {selectedMatch.name}
                       </div>
                       <div style={{ fontSize: 11, color: 'var(--gl-color-text-muted)' }}>
-                        {m.sharedCM} cM · {m.relationship}
-                        {m.ancestryComposition && m.ancestryComposition.length > 0 &&
-                          ` · ${m.ancestryComposition[0].region}`}
+                        {selectedMatch.sharedCM} cM · {selectedMatch.relationship}
+                        {selectedMatch.ancestryComposition && selectedMatch.ancestryComposition.length > 0 &&
+                          ` · ${selectedMatch.ancestryComposition[0].region}`}
                       </div>
                     </div>
                   </div>
-                );
-              })()}
 
-              {/* cM input */}
-              <div style={{ marginBottom: 20 }}>
-                <label
-                  style={{
-                    display: 'block',
-                    fontSize: 13,
-                    fontWeight: 500,
-                    fontFamily: 'var(--gl-font)',
-                    color: 'var(--gl-color-text-muted)',
-                    marginBottom: 8,
-                  }}
-                >
-                  Shared centiMorgan (cM) value
-                </label>
-                <CmInput value={cmValue} onChange={setCmValue} />
-              </div>
-
-              {/* Common Ancestor cM panel — only for non-close relatives.
-                  Above 200 cM the relationship is unambiguous from cM alone,
-                  so population context isn't useful. */}
-              {showCommonAncestorPanel && (
-                <div style={{ marginBottom: 24 }}>
-                  <CommonAncestorPanel
-                    inputCM={numericCM}
-                    populationId={populationId}
-                    onPopulationChange={setPopulationId}
-                  />
-                </div>
-              )}
-
-              {/* Divider */}
-              <div
-                style={{
-                  height: 1,
-                  background: 'var(--gl-color-border)',
-                  marginBottom: 20,
-                }}
-              />
-
-              {/* Results */}
-              {numericCM <= 0 ? (
-                <div
-                  style={{
-                    textAlign: 'center', padding: '40px 0',
-                    fontSize: 14, fontFamily: 'var(--gl-font)',
-                    color: 'var(--gl-color-text-muted)',
-                  }}
-                >
-                  Pick a match from the left, or enter a cM value above
-                </div>
-              ) : results.length === 0 ? (
-                <div
-                  style={{
-                    textAlign: 'center', padding: '40px 0',
-                    fontSize: 14, fontFamily: 'var(--gl-font)',
-                    color: 'var(--gl-color-text-muted)',
-                  }}
-                >
-                  No matching relationships found for {numericCM} cM
-                </div>
-              ) : (
-                <>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      marginBottom: 12,
-                    }}
-                  >
-                    <span
+                  {/* Shared cM display */}
+                  <div style={{ marginBottom: 16 }}>
+                    <label
                       style={{
-                        fontSize: 14, fontWeight: 600,
+                        display: 'block',
+                        fontSize: 13,
+                        fontWeight: 500,
                         fontFamily: 'var(--gl-font)',
-                        color: 'var(--gl-color-primary-dark)',
+                        color: 'var(--gl-color-text-muted)',
+                        marginBottom: 8,
                       }}
                     >
-                      Possible relationships
-                    </span>
-                    <span
+                      Shared centiMorgan (cM) value
+                    </label>
+                    <div
                       style={{
-                        fontSize: 12,
-                        fontFamily: 'var(--gl-font)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 12,
+                        background: '#fff',
+                        border: '2px solid var(--gl-color-border)',
+                        borderRadius: 12,
+                        padding: '12px 16px',
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: 24,
+                          fontWeight: 600,
+                          fontFamily: 'var(--gl-font)',
+                          color: 'var(--gl-color-primary-dark)',
+                          flex: 1,
+                        }}
+                      >
+                        {selectedMatch.sharedCM}
+                      </span>
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          padding: '4px 12px',
+                          borderRadius: 20,
+                          background: '#F0F2F5',
+                          color: 'var(--gl-color-text-muted)',
+                          fontSize: 13,
+                          fontWeight: 600,
+                          fontFamily: 'var(--gl-font)',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                        }}
+                      >
+                        cM shared
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Segment exclusion panel — only for multi-segment matches */}
+                  {hasMultipleSegments && (
+                    <SegmentExclusionPanel
+                      segments={segments}
+                      totalCM={selectedMatch.sharedCM}
+                      populationId={populationId}
+                      onPopulationChange={handlePopulationChange}
+                      excludedIndices={excludedSegmentIndices}
+                      onExcludedChange={setExcludedSegmentIndices}
+                      effectiveCM={effectiveCM}
+                    />
+                  )}
+
+                  {/* Divider */}
+                  <div
+                    style={{
+                      height: 1,
+                      background: 'var(--gl-color-border)',
+                      marginBottom: 20,
+                    }}
+                  />
+
+                  {/* Results */}
+                  {results.length === 0 ? (
+                    <div
+                      style={{
+                        textAlign: 'center', padding: '40px 0',
+                        fontSize: 14, fontFamily: 'var(--gl-font)',
                         color: 'var(--gl-color-text-muted)',
                       }}
                     >
-                      {results.length} match{results.length !== 1 ? 'es' : ''}
-                    </span>
-                  </div>
+                      No matching relationships found for {effectiveCM.toFixed(1)} cM
+                    </div>
+                  ) : (
+                    <>
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          marginBottom: 12,
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: 14, fontWeight: 600,
+                            fontFamily: 'var(--gl-font)',
+                            color: 'var(--gl-color-primary-dark)',
+                          }}
+                        >
+                          Possible relationships
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 12,
+                            fontFamily: 'var(--gl-font)',
+                            color: 'var(--gl-color-text-muted)',
+                          }}
+                        >
+                          {results.length} match{results.length !== 1 ? 'es' : ''}
+                        </span>
+                      </div>
 
-                  {topResult && <InfoBox entry={topResult} />}
-                  <div style={{ marginTop: 16 }}>
-                    <RelationshipList results={results} />
-                  </div>
+                      {topResult && (
+                        <InfoBox
+                          entry={topResult}
+                          originalCM={selectedMatch.sharedCM}
+                          effectiveCM={excludedSegmentIndices.size > 0 ? effectiveCM : undefined}
+                        />
+                      )}
+                      <div style={{ marginTop: 16 }}>
+                        <RelationshipList results={results} />
+                      </div>
+                    </>
+                  )}
                 </>
               )}
             </div>
