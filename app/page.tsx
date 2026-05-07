@@ -2,19 +2,25 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { CmInput } from '@/components/predictor/CmInput';
 import { RelationshipList } from '@/components/predictor/RelationshipList';
-import { EndogamyPanel } from '@/components/predictor/EndogamyPanel';
 import { CommonAncestorPanel } from '@/components/predictor/CommonAncestorPanel';
 import { InfoBox } from '@/components/predictor/InfoBox';
 import { MatchList } from '@/components/predictor/MatchList';
 import { UserSwitcher } from '@/components/UserSwitcher';
 import { getRelationshipsForCM } from '@/data/sharedCmData';
-import { suggestPopulationForAncestry } from '@/data/populationContext';
 import {
   loadUserIndex, loadUserDataset,
   getSelectedUserIdFromUrl, setSelectedUserIdInUrl,
   DemoUser,
 } from '@/data/adapters/realData';
 import { DNAMatch } from '@/data/types';
+
+/**
+ * Above this cM, the relationship is unambiguous from cM alone (2nd cousin
+ * and closer); the Common Ancestor population panel adds noise rather than
+ * signal so we hide it. Calibrated against the Shared cM Project V4: 200 cM
+ * is the lower edge of the 2nd-cousin range.
+ */
+const COMMON_ANCESTOR_MAX_CM = 200;
 
 interface IndexEntry {
   id: string;
@@ -27,25 +33,27 @@ interface IndexEntry {
 
 export default function Home() {
   const [cmValue, setCmValue] = useState('');
-  const [endogamyEnabled, setEndogamyEnabled] = useState(false);
-  const [endogamyFactor, setEndogamyFactor] = useState(1.0);
   const [populationId, setPopulationId] = useState('none');
 
   // Real-data state
   const [userIndex, setUserIndex] = useState<IndexEntry[]>([]);
   const [activeUserId, setActiveUserId] = useState<string>('user-1');
-  const [activeUser, setActiveUser] = useState<DemoUser | null>(null);
+  // activeUser is loaded but no longer drives auto-suggest — kept in case
+  // future per-user features need it. Underscore-prefixed to avoid lint.
+  const [, setActiveUser] = useState<DemoUser | null>(null);
   const [matches, setMatches] = useState<DNAMatch[]>([]);
   const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
   const [loadingMatches, setLoadingMatches] = useState(true);
 
   const numericCM = parseFloat(cmValue) || 0;
-  const factor = endogamyEnabled ? endogamyFactor : 1.0;
 
   const results = useMemo(() => {
     if (numericCM <= 0) return [];
-    return getRelationshipsForCM(numericCM, factor);
-  }, [numericCM, factor]);
+    return getRelationshipsForCM(numericCM);
+  }, [numericCM]);
+
+  /** Population-context only meaningful for distant matches (< 200 cM). */
+  const showCommonAncestorPanel = numericCM > 0 && numericCM < COMMON_ANCESTOR_MAX_CM;
 
   const topResult = results.length > 0 ? results[0] : null;
 
@@ -96,13 +104,10 @@ export default function Home() {
     setSelectedMatchId(match.id);
     setCmValue(String(match.sharedCM));
 
-    // Auto-select population from active user's primary ancestry profile.
-    // The match-anchor pair is most likely related through the user's primary
-    // population — that's what the user is asking about when they click.
-    if (activeUser?.ancestryProfile && activeUser.ancestryProfile[0]) {
-      const suggested = suggestPopulationForAncestry(activeUser.ancestryProfile[0].region);
-      setPopulationId(suggested);
-    }
+    // Population dropdown is sticky — keep whatever the user last picked.
+    // We deliberately do NOT auto-suggest from the user's profile because
+    // that requires heavy validation and can be wrong; the user is the
+    // best judge of which population context applies.
 
     // Smooth-scroll the prediction card into view on narrow screens
     if (typeof window !== 'undefined' && window.innerWidth < 1024) {
@@ -274,25 +279,18 @@ export default function Home() {
                 <CmInput value={cmValue} onChange={setCmValue} />
               </div>
 
-              {/* Endogamy panel */}
-              <div style={{ marginBottom: 16 }}>
-                <EndogamyPanel
-                  enabled={endogamyEnabled}
-                  factor={endogamyFactor}
-                  inputCM={numericCM}
-                  onEnabledChange={setEndogamyEnabled}
-                  onFactorChange={setEndogamyFactor}
-                />
-              </div>
-
-              {/* Common Ancestor cM panel — population-context view */}
-              <div style={{ marginBottom: 24 }}>
-                <CommonAncestorPanel
-                  inputCM={numericCM}
-                  populationId={populationId}
-                  onPopulationChange={setPopulationId}
-                />
-              </div>
+              {/* Common Ancestor cM panel — only for non-close relatives.
+                  Above 200 cM the relationship is unambiguous from cM alone,
+                  so population context isn't useful. */}
+              {showCommonAncestorPanel && (
+                <div style={{ marginBottom: 24 }}>
+                  <CommonAncestorPanel
+                    inputCM={numericCM}
+                    populationId={populationId}
+                    onPopulationChange={setPopulationId}
+                  />
+                </div>
+              )}
 
               {/* Divider */}
               <div
@@ -323,9 +321,6 @@ export default function Home() {
                   }}
                 >
                   No matching relationships found for {numericCM} cM
-                  {endogamyEnabled && factor !== 1.0
-                    ? ` (adjusted to ${Math.round(numericCM / factor)} cM)`
-                    : ''}
                 </div>
               ) : (
                 <>

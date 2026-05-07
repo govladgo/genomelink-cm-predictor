@@ -158,8 +158,9 @@ export default function CmPredictorHelpPage() {
             <div style={tipCallout}>
               <div style={calloutTitle}>Tip</div>
               <div>
-                When you click a match, the population dropdown auto-selects based on the demo user&apos;s
-                primary ancestry. You can override it for any specific match.
+                The Common Ancestor population dropdown is sticky — pick one and it stays for the next match
+                you click. The panel only appears for distant relationships (under 200 cM, roughly 2nd cousin
+                and further); for close relatives the relationship is unambiguous from cM alone.
               </div>
             </div>
           </section>
@@ -195,8 +196,8 @@ export default function CmPredictorHelpPage() {
                 <a href="#how-baseline-works" style={tocLink}>
                   How the population baseline is subtracted
                 </a>
-                <a href="#endogamy-vs-population" style={tocLink}>
-                  Endogamy slider vs. populations
+                <a href="#close-vs-distant" style={tocLink}>
+                  When the panel appears (close vs. distant)
                 </a>
                 <div style={{ ...tocGroupTitle, marginTop: 16 }}>Demo &amp; glossary</div>
                 <a href="#demo-data" style={tocLink}>
@@ -365,26 +366,28 @@ predictions = predictRelationships(recentAncestorCM)`}
             </div>
           </section>
 
-          {/* === Endogamy vs populations === */}
-          <section id="endogamy-vs-population" style={sectionGroup}>
-            <h3 style={h3Style}>Endogamy slider vs. populations</h3>
+          {/* === Close vs distant === */}
+          <section id="close-vs-distant" style={sectionGroup}>
+            <h3 style={h3Style}>When the panel appears (close vs. distant)</h3>
             <p style={bodyText}>
-              The page has two ways to adjust for shared ancestry:
+              The Common Ancestor panel only appears when the input is{' '}
+              <strong>under 200 cM</strong> — roughly 2nd cousin and more distant. Above 200 cM the
+              relationship is unambiguous from cM alone (1st cousins, half-siblings, parents, siblings,
+              grandparents) and population context just adds noise to a clear signal.
             </p>
-            <ul style={unorderedList}>
-              <li>
-                <strong>&ldquo;I have endogamous ancestry&rdquo; slider</strong> — a generic multiplier (0.5×–2.0×) applied
-                uniformly to your cM. Use when you don&apos;t want to commit to a specific population.
-              </li>
-              <li>
-                <strong>Common Ancestor cM populations</strong> — named populations with historical context,
-                per-population baselines, and per-relationship cM brackets. Use for a more accurate, more
-                explanatory adjustment when you can identify the population.
-              </li>
-            </ul>
+            <div style={tipCallout}>
+              <div style={calloutTitle}>Why 200 cM?</div>
+              <div>
+                The Shared cM Project V4 places the lower edge of the 2nd-cousin range at ~200 cM. Below
+                that, multiple distant-cousin relationships overlap heavily — exactly where population
+                context (Baltic/Slavic, Ashkenazi, etc.) helps disambiguate.
+              </div>
+            </div>
             <p style={bodyText}>
-              The two are independent — you can use either, both, or neither. The Common Ancestor panel uses
-              the population baseline; the standard histogram uses the endogamy multiplier.
+              The dropdown is also sticky: once you pick a population, it stays selected as you click
+              through different matches in the sidebar. The app deliberately doesn&apos;t auto-suggest a
+              population from your profile because that requires heavy validation and is easy to get
+              wrong — you&apos;re the best judge of which population context applies.
             </p>
           </section>
 
@@ -528,10 +531,6 @@ const orderedList: React.CSSProperties = {
   fontSize: 16,
   color: '#263856',
   lineHeight: '24px',
-};
-
-const unorderedList: React.CSSProperties = {
-  ...orderedList,
 };
 
 const tipCallout: React.CSSProperties = {
