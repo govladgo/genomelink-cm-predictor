@@ -1,42 +1,10 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
-
-function BackArrow() {
-  return (
-    <svg width="22" height="18" viewBox="0 0 22 18" fill="none">
-      <path
-        d="M9 1L1 9L9 17M1 9H21"
-        stroke="#6786AC"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function DnaIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M8.667 22C9.201 21.466 9.735 20.932 9.241 18M8.667 15.334C7.334 10 8.334 9 8.667 8.667C9 8.334 10 7.334 15.334 8.667M8.667 15.334C3.334 14 2.667 14.666 2 15.333M8.667 15.334C14 16.668 15 15.666 15.333 15.333C15.666 15 16.668 14 15.334 8.667M15.334 8.667C20.667 10 21.333 9.334 22 8.667M15.333 2C14.799 2.534 14.265 3.068 14.759 6"
-        stroke="#263856"
-        strokeOpacity="0.6"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
+import Link from 'next/link';
+import { AppHeader } from '@/components/AppHeader';
 
 export default function CmPredictorHelpPage() {
-  const router = useRouter();
-
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-
   return (
     <div
       style={{
@@ -45,76 +13,23 @@ export default function CmPredictorHelpPage() {
         fontFamily: 'var(--gl-font)',
       }}
     >
+      <AppHeader />
+
       <div
+        className="help-page-container"
         style={{
           maxWidth: 1144,
           margin: '0 auto',
-          padding: isMobile ? '16px 16px 60px' : '24px 32px 60px',
+          padding: '24px 32px 60px',
         }}
       >
-        {/* Top bar: back arrow + title */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative',
-            marginBottom: 32,
-            minHeight: 32,
-          }}
-        >
-          <button
-            onClick={() => router.push('/')}
-            style={{
-              position: 'absolute',
-              left: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 16,
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontFamily: 'var(--gl-font)',
-              padding: 0,
-            }}
-            aria-label="Back to predictor"
-            className="back-button"
-          >
-            <BackArrow />
-            <span
-              style={{
-                fontSize: 16,
-                fontWeight: 600,
-                color: '#6786AC',
-                lineHeight: '24px',
-              }}
-              className="back-label"
-            >
-              Back to predictor
-            </span>
-          </button>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <DnaIcon />
-            <span
-              style={{
-                fontSize: 24,
-                fontWeight: 600,
-                color: '#263856',
-                lineHeight: '32px',
-              }}
-            >
-              Common Ancestor cM
-            </span>
-          </div>
-        </div>
-
         {/* Help card */}
         <div
+          className="help-card"
           style={{
             background: 'white',
             borderRadius: 12,
-            padding: isMobile ? 16 : '48px 96px',
+            padding: '48px 96px',
             border: '1px solid rgba(201, 214, 228, 0.6)',
             display: 'flex',
             flexDirection: 'column',
@@ -146,10 +61,10 @@ export default function CmPredictorHelpPage() {
           <section style={sectionGroup}>
             <h2 style={h2Style}>Quick start</h2>
             <ol style={orderedList}>
-              <li>Pick a demo user from the switcher in the top-right header.</li>
-              <li>Click any match in the left list — predictions appear immediately on the right.</li>
+              <li>Select a match from the left panel — your DNA matches are listed by shared cM.</li>
+              <li>Predictions appear immediately on the right, showing every relationship class compatible with the shared cM.</li>
               <li>For matches with 2+ segments, the <strong>Segment Analysis</strong> panel lets you exclude segments likely inherited from population-level ancestry.</li>
-              <li>The <strong>population context</strong> dropdown auto-selects based on the match&apos;s ancestry and filters to only show relevant populations.</li>
+              <li>Use the <strong>population context</strong> dropdown to select the relevant ancestral population — it auto-selects based on the match&apos;s ancestry composition.</li>
               <li>Review the relationship list below — each entry is a possible relationship ranked by probability.</li>
             </ol>
 
@@ -170,38 +85,38 @@ export default function CmPredictorHelpPage() {
             <div style={tocGrid} className="toc-grid">
               <div style={tocColumn}>
                 <div style={tocGroupTitle}>Getting started</div>
-                <a href="#what-is-cm" style={tocLink}>
+                <a href="#what-is-cm" className="toc-link" style={tocLink}>
                   What is a centiMorgan?
                 </a>
-                <a href="#histogram" style={tocLink}>
+                <a href="#histogram" className="toc-link" style={tocLink}>
                   Reading the relationship list
                 </a>
-                <a href="#one-cm-many-relationships" style={tocLink}>
+                <a href="#one-cm-many-relationships" className="toc-link" style={tocLink}>
                   Why one cM value fits several relationships
                 </a>
-                <a href="#shared-cm-project" style={tocLink}>
+                <a href="#shared-cm-project" className="toc-link" style={tocLink}>
                   The Shared cM Project (V4)
                 </a>
               </div>
               <div style={tocColumn}>
                 <div style={tocGroupTitle}>Segment analysis</div>
-                <a href="#segment-analysis" style={tocLink}>
+                <a href="#segment-analysis" className="toc-link" style={tocLink}>
                   How segment exclusion works
                 </a>
-                <a href="#population-context" style={tocLink}>
+                <a href="#population-context" className="toc-link" style={tocLink}>
                   Population context and auto-detection
                 </a>
-                <a href="#populations-table" style={tocLink}>
+                <a href="#populations-table" className="toc-link" style={tocLink}>
                   The 8 supported populations
                 </a>
-                <a href="#ibd-hotspots" style={tocLink}>
+                <a href="#ibd-hotspots" className="toc-link" style={tocLink}>
                   IBD hotspot regions
                 </a>
-                <div style={{ ...tocGroupTitle, marginTop: 16 }}>Demo &amp; glossary</div>
-                <a href="#demo-data" style={tocLink}>
-                  About the demo data
+                <div style={{ ...tocGroupTitle, marginTop: 16 }}>Reference</div>
+                <a href="#about-data" className="toc-link" style={tocLink}>
+                  About the data
                 </a>
-                <a href="#glossary" style={tocLink}>
+                <a href="#glossary" className="toc-link" style={tocLink}>
                   Glossary
                 </a>
               </div>
@@ -389,26 +304,30 @@ export default function CmPredictorHelpPage() {
             </p>
           </section>
 
-          {/* === Demo data === */}
-          <section id="demo-data" style={sectionGroup}>
-            <h3 style={h3Style}>About the demo data</h3>
+          {/* === About the data === */}
+          <section id="about-data" style={sectionGroup}>
+            <h3 style={h3Style}>About the data</h3>
             <p style={bodyText}>
-              The 10 demo users (and their ~1,700 matches each) are derived from a real DNA-pair dataset
-              (~254,000 pairs with segment-level data and computed kinship labels). User identities and
-              matched-person ancestry profiles are <strong>synthesized deterministically</strong> from the encrypted user
-              IDs, so the names and ancestry compositions you see are plausible but fictional.
+              Relationship predictions are based on the Shared cM Project V4, a crowdsourced dataset of
+              over 60,000 submissions mapping known relationships to observed cM values. This is the most
+              widely used reference in genetic genealogy.
             </p>
             <p style={bodyText}>
-              The cM values, segment positions, and relationship labels are all <strong>real</strong> — they come straight
-              from the source data. The stratified sampling ensures each demo user has matches across the
-              full kinship range (close, mid, distant) for interesting predictions.
+              Segment data — including chromosome, start/end positions, and segment length in cM — comes
+              from your DNA testing provider. The tool uses this data as-is to perform segment-level analysis
+              and exclusion scoring.
+            </p>
+            <p style={bodyText}>
+              Population baselines (the approximate cM shared by unrelated members of endogamous populations)
+              are approximations drawn from genealogical literature and published IBD studies. They should be
+              treated as guidance rather than exact thresholds.
             </p>
           </section>
 
           {/* === Glossary === */}
           <section id="glossary" style={sectionGroup}>
             <h3 style={h3Style}>Glossary</h3>
-            <dl style={glossary}>
+            <dl style={glossary} className="glossary-grid">
               <dt style={dt}>centiMorgan (cM)</dt>
               <dd style={dd}>Unit of genetic distance. ~3,500 cM = identical twin; 4 cM ≈ 8th cousin average.</dd>
 
@@ -446,35 +365,41 @@ export default function CmPredictorHelpPage() {
 
           {/* === CTA === */}
           <div style={{ marginTop: 8, display: 'flex', justifyContent: 'flex-start' }}>
-            <button
-              onClick={() => router.push('/')}
-              style={{
-                padding: '12px 28px',
-                borderRadius: 32,
-                background: 'var(--gl-color-primary-attention)',
-                color: 'white',
-                border: 'none',
-                fontSize: 15,
-                fontWeight: 600,
-                cursor: 'pointer',
-                fontFamily: 'var(--gl-font)',
-                lineHeight: '20px',
-              }}
+            <Link
+              href="/"
+              className="gl-btn gl-btn--primary"
             >
               Open the predictor
-            </button>
+            </Link>
           </div>
         </div>
       </div>
 
-      {/* Mobile responsive tweaks */}
+      {/* Responsive styles */}
       <style jsx global>{`
-        @media (max-width: 600px) {
+        .toc-link:hover {
+          text-decoration: underline;
+        }
+
+        @media (max-width: 767px) {
+          .help-page-container {
+            padding: 16px 16px 60px !important;
+          }
+          .help-card {
+            padding: 16px !important;
+          }
           .toc-grid {
             grid-template-columns: 1fr !important;
           }
-          .back-label {
-            display: none;
+          .glossary-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .glossary-grid dt {
+            padding-top: 8px !important;
+            border-top: 1px solid rgba(201, 214, 228, 0.4);
+          }
+          .glossary-grid dd {
+            padding-bottom: 4px;
           }
         }
       `}</style>
