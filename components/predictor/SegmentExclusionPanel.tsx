@@ -71,11 +71,10 @@ function PopulationDropdown({ populations, selectedId, onSelect }: PopulationDro
       <label
         style={{
           display: 'block',
-          fontSize: 10,
-          fontWeight: 600,
-          color: 'var(--gl-color-text-muted)',
-          textTransform: 'uppercase',
-          letterSpacing: '0.04em',
+          fontSize: 14,
+          fontWeight: 400,
+          lineHeight: '20px',
+          color: '#6786AC',
           marginBottom: 4,
           fontFamily: 'var(--gl-font)',
         }}
@@ -93,11 +92,11 @@ function PopulationDropdown({ populations, selectedId, onSelect }: PopulationDro
           width: '100%',
           padding: '8px 12px',
           background: '#fff',
-          border: '1px solid var(--gl-color-border-light)',
+          border: '1px solid rgba(201, 214, 228, 0.6)',
           borderRadius: 8,
           cursor: 'pointer',
           fontFamily: 'var(--gl-font)',
-          fontSize: 13,
+          fontSize: 14,
           color: '#263856',
           textAlign: 'left',
           lineHeight: '20px',
@@ -242,20 +241,20 @@ export function SegmentExclusionPanel({
   return (
     <div
       style={{
-        background: 'linear-gradient(135deg, rgba(69, 130, 201, 0.04), rgba(122, 191, 67, 0.04))',
-        border: '1px solid var(--gl-color-border-light)',
-        borderRadius: 12,
+        background: 'rgba(201, 214, 228, 0.2)',
+        borderRadius: 16,
         padding: 16,
-        marginBottom: 20,
+        marginBottom: 24,
       }}
     >
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
         <h3
           style={{
-            fontSize: 13,
-            fontWeight: 700,
-            color: 'var(--gl-color-primary-dark)',
+            fontSize: 16,
+            fontWeight: 600,
+            lineHeight: '24px',
+            color: '#263856',
             margin: 0,
             fontFamily: 'var(--gl-font)',
           }}
@@ -264,8 +263,9 @@ export function SegmentExclusionPanel({
         </h3>
         <span
           style={{
-            fontSize: 10,
-            color: 'var(--gl-color-text-muted)',
+            fontSize: 14,
+            lineHeight: '20px',
+            color: '#6786AC',
             fontFamily: 'var(--gl-font)',
           }}
         >
@@ -284,40 +284,40 @@ export function SegmentExclusionPanel({
       />
 
       {/* Summary tiles */}
-      <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
         <div
           style={{
             flex: 1,
-            padding: '8px 10px',
-            borderRadius: 6,
+            padding: '10px 12px',
+            borderRadius: 8,
             background: 'rgba(69, 130, 201, 0.08)',
           }}
         >
-          <div style={{ fontSize: 10, fontWeight: 600, color: '#245FA4', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 2 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#245FA4', textTransform: 'uppercase', marginBottom: 2 }}>
             Included
           </div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: '#245FA4' }}>
+          <div style={{ fontSize: 16, fontWeight: 600, lineHeight: '24px', color: '#245FA4' }}>
             {effectiveCM.toFixed(1)} cM
           </div>
-          <div style={{ fontSize: 10, color: 'var(--gl-color-text-muted)' }}>
+          <div style={{ fontSize: 14, lineHeight: '20px', color: '#6786AC' }}>
             {includedCount} segment{includedCount !== 1 ? 's' : ''}
           </div>
         </div>
         <div
           style={{
             flex: 1,
-            padding: '8px 10px',
-            borderRadius: 6,
-            background: excludedCount > 0 ? 'rgba(255, 124, 17, 0.08)' : 'rgba(0,0,0,0.02)',
+            padding: '10px 12px',
+            borderRadius: 8,
+            background: excludedCount > 0 ? 'rgba(255, 124, 17, 0.08)' : 'rgba(201, 214, 228, 0.2)',
           }}
         >
-          <div style={{ fontSize: 10, fontWeight: 600, color: excludedCount > 0 ? '#d46a0e' : 'var(--gl-color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 2 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: excludedCount > 0 ? '#d46a0e' : '#6786AC', textTransform: 'uppercase', marginBottom: 2 }}>
             Excluded
           </div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: excludedCount > 0 ? '#d46a0e' : 'var(--gl-color-text-muted)' }}>
+          <div style={{ fontSize: 16, fontWeight: 600, lineHeight: '24px', color: excludedCount > 0 ? '#d46a0e' : '#6786AC' }}>
             {excludedCM.toFixed(1)} cM
           </div>
-          <div style={{ fontSize: 10, color: 'var(--gl-color-text-muted)' }}>
+          <div style={{ fontSize: 14, lineHeight: '20px', color: '#6786AC' }}>
             {excludedCount} segment{excludedCount !== 1 ? 's' : ''}
           </div>
         </div>
@@ -327,10 +327,10 @@ export function SegmentExclusionPanel({
       <div
         style={{
           background: '#fff',
-          border: '1px solid var(--gl-color-border-light)',
+          border: '1px solid rgba(201, 214, 228, 0.6)',
           borderRadius: 8,
           overflow: 'hidden',
-          marginBottom: 10,
+          marginBottom: 8,
         }}
       >
         <div
@@ -339,7 +339,7 @@ export function SegmentExclusionPanel({
             gridTemplateColumns: '28px 48px 1fr 56px 48px',
             gap: 0,
             padding: '6px 8px',
-            borderBottom: '1px solid var(--gl-color-border-light)',
+            borderBottom: '1px solid rgba(201, 214, 228, 0.4)',
             background: '#F7F8FA',
             fontSize: 9,
             fontWeight: 600,
@@ -369,7 +369,7 @@ export function SegmentExclusionPanel({
                   gridTemplateColumns: '28px 48px 1fr 56px 48px',
                   gap: 0,
                   padding: '5px 8px',
-                  borderBottom: '1px solid var(--gl-color-border-light)',
+                  borderBottom: '1px solid rgba(201, 214, 228, 0.4)',
                   cursor: 'pointer',
                   opacity: isExcluded ? 0.45 : 1,
                   background: isExcluded ? 'rgba(0,0,0,0.02)' : scoreBg(seg.populationScore),
@@ -439,7 +439,7 @@ export function SegmentExclusionPanel({
       </div>
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+      <div style={{ display: 'flex', gap: 8 }}>
         <button
           onClick={includeAll}
           style={{

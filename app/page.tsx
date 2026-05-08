@@ -188,8 +188,8 @@ export default function Home() {
             <div
               style={{
                 background: '#fff',
+                border: '1px solid rgba(201, 214, 228, 0.6)',
                 borderRadius: 12,
-                boxShadow: '0 4px 10px rgba(74, 93, 128, 0.13)',
                 padding: 24,
               }}
             >
@@ -197,8 +197,9 @@ export default function Home() {
                 <div
                   style={{
                     textAlign: 'center', padding: '60px 0',
-                    fontSize: 14, fontFamily: 'var(--gl-font)',
-                    color: 'var(--gl-color-text-muted)',
+                    fontSize: 16, lineHeight: '24px',
+                    fontFamily: 'var(--gl-font)',
+                    color: '#6786AC',
                   }}
                 >
                   Select a match from the list to see relationship predictions
@@ -211,10 +212,9 @@ export default function Home() {
                       display: 'flex',
                       alignItems: 'center',
                       gap: 12,
-                      padding: '10px 12px',
-                      marginBottom: 16,
-                      background: 'rgba(69, 130, 201, 0.06)',
-                      border: '1px solid rgba(69, 130, 201, 0.2)',
+                      padding: '12px 16px',
+                      marginBottom: 24,
+                      background: 'rgba(122, 184, 255, 0.1)',
                       borderRadius: 8,
                     }}
                   >
@@ -229,10 +229,10 @@ export default function Home() {
                       {selectedMatch.initials}
                     </span>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--gl-color-primary-dark)' }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, lineHeight: '20px', color: '#263856' }}>
                         Predicting for {selectedMatch.name}
                       </div>
-                      <div style={{ fontSize: 11, color: 'var(--gl-color-text-muted)' }}>
+                      <div style={{ fontSize: 14, lineHeight: '20px', color: '#6786AC' }}>
                         {selectedMatch.sharedCM} cM · {selectedMatch.relationship}
                         {selectedMatch.ancestryComposition && selectedMatch.ancestryComposition.length > 0 &&
                           ` · ${selectedMatch.ancestryComposition[0].region}`}
@@ -241,15 +241,16 @@ export default function Home() {
                   </div>
 
                   {/* Shared cM display */}
-                  <div style={{ marginBottom: 16 }}>
+                  <div style={{ marginBottom: 24 }}>
                     <label
                       style={{
                         display: 'block',
-                        fontSize: 13,
-                        fontWeight: 500,
+                        fontSize: 14,
+                        lineHeight: '20px',
+                        fontWeight: 400,
                         fontFamily: 'var(--gl-font)',
-                        color: 'var(--gl-color-text-muted)',
-                        marginBottom: 8,
+                        color: '#6786AC',
+                        marginBottom: 4,
                       }}
                     >
                       Shared centiMorgan (cM) value
@@ -258,19 +259,20 @@ export default function Home() {
                       style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 12,
+                        gap: 8,
                         background: '#fff',
-                        border: '2px solid var(--gl-color-border)',
-                        borderRadius: 12,
-                        padding: '12px 16px',
+                        border: '1px solid #8FABCF',
+                        borderRadius: 8,
+                        padding: 14,
                       }}
                     >
                       <span
                         style={{
-                          fontSize: 24,
-                          fontWeight: 600,
+                          fontSize: 14,
+                          lineHeight: '20px',
+                          fontWeight: 400,
                           fontFamily: 'var(--gl-font)',
-                          color: 'var(--gl-color-primary-dark)',
+                          color: '#263856',
                           flex: 1,
                         }}
                       >
@@ -278,15 +280,10 @@ export default function Home() {
                       </span>
                       <span
                         style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          padding: '4px 12px',
-                          borderRadius: 20,
-                          background: '#F0F2F5',
-                          color: 'var(--gl-color-text-muted)',
-                          fontSize: 13,
-                          fontWeight: 600,
+                          fontSize: 14,
+                          lineHeight: '20px',
                           fontFamily: 'var(--gl-font)',
+                          color: '#6786AC',
                           whiteSpace: 'nowrap',
                           flexShrink: 0,
                         }}
@@ -314,8 +311,8 @@ export default function Home() {
                   <div
                     style={{
                       height: 1,
-                      background: 'var(--gl-color-border)',
-                      marginBottom: 20,
+                      background: 'rgba(201, 214, 228, 0.6)',
+                      marginBottom: 24,
                     }}
                   />
 
@@ -324,8 +321,9 @@ export default function Home() {
                     <div
                       style={{
                         textAlign: 'center', padding: '40px 0',
-                        fontSize: 14, fontFamily: 'var(--gl-font)',
-                        color: 'var(--gl-color-text-muted)',
+                        fontSize: 16, lineHeight: '24px',
+                        fontFamily: 'var(--gl-font)',
+                        color: '#6786AC',
                       }}
                     >
                       No matching relationships found for {effectiveCM.toFixed(1)} cM
@@ -342,18 +340,19 @@ export default function Home() {
                       >
                         <span
                           style={{
-                            fontSize: 14, fontWeight: 600,
+                            fontSize: 16, fontWeight: 600,
+                            lineHeight: '24px',
                             fontFamily: 'var(--gl-font)',
-                            color: 'var(--gl-color-primary-dark)',
+                            color: '#263856',
                           }}
                         >
                           Possible relationships
                         </span>
                         <span
                           style={{
-                            fontSize: 12,
+                            fontSize: 14, lineHeight: '20px',
                             fontFamily: 'var(--gl-font)',
-                            color: 'var(--gl-color-text-muted)',
+                            color: '#6786AC',
                           }}
                         >
                           {results.length} match{results.length !== 1 ? 'es' : ''}
@@ -381,10 +380,10 @@ export default function Home() {
               style={{
                 marginTop: 24,
                 textAlign: 'center',
-                fontSize: 11,
+                fontSize: 14,
+                lineHeight: '20px',
                 fontFamily: 'var(--gl-font)',
-                color: 'var(--gl-color-text-subtle)',
-                lineHeight: 1.6,
+                color: '#6786AC',
               }}
             >
               Data based on the Shared cM Project v4 (Bettinger/Larkin/Perl).
