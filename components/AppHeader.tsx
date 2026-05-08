@@ -111,19 +111,19 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
           position: 'relative',
         }}
       >
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
+        {/* Logo — matches Figma 206×46px logo component */}
+        <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/gl-logo-icon.svg"
             alt="Genomelink"
-            style={{ height: 46, width: 36, objectFit: 'contain' }}
+            style={{ height: 46, width: 36 }}
           />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/gl-logo-text.svg"
             alt=""
-            style={{ height: 22, marginLeft: 8 }}
+            style={{ width: 160, height: 23, marginLeft: 9, position: 'relative', top: 1 }}
           />
         </div>
 
