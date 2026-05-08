@@ -188,7 +188,7 @@ export function SegmentExclusionPanel({
   effectiveCM,
   ancestryComposition,
 }: SegmentExclusionPanelProps) {
-  const excludedCM = totalCM - effectiveCM;
+  const excludedCM = Math.max(0, totalCM - effectiveCM);
   const includedCount = segments.length - excludedIndices.size;
   const excludedCount = excludedIndices.size;
 
@@ -341,7 +341,7 @@ export function SegmentExclusionPanel({
             padding: '6px 8px',
             borderBottom: '1px solid rgba(201, 214, 228, 0.4)',
             background: '#F7F8FA',
-            fontSize: 9,
+            fontSize: 11,
             fontWeight: 600,
             color: 'var(--gl-color-text-muted)',
             textTransform: 'uppercase',
@@ -374,7 +374,7 @@ export function SegmentExclusionPanel({
                   opacity: isExcluded ? 0.45 : 1,
                   background: isExcluded ? 'rgba(0,0,0,0.02)' : scoreBg(seg.populationScore),
                   transition: 'opacity 0.15s, background 0.15s',
-                  fontSize: 12,
+                  fontSize: 14,
                   fontFamily: 'var(--gl-font)',
                   alignItems: 'center',
                 }}
@@ -391,13 +391,13 @@ export function SegmentExclusionPanel({
                 <span style={{ fontWeight: 600, color: 'var(--gl-color-primary-dark)' }}>
                   {seg.chromosome}
                 </span>
-                <span style={{ color: 'var(--gl-color-text-muted)', fontSize: 11, lineHeight: 1.3 }}>
+                <span style={{ color: 'var(--gl-color-text-muted)', fontSize: 13, lineHeight: 1.3 }}>
                   <span>{formatMb(sizeBp)}</span>
                   {seg.isTriangulated && (
                     <span
                       style={{
                         marginLeft: 5,
-                        fontSize: 8,
+                        fontSize: 9,
                         fontWeight: 600,
                         color: 'var(--gl-color-positive)',
                         background: 'rgba(122, 191, 67, 0.1)',
@@ -413,7 +413,7 @@ export function SegmentExclusionPanel({
                       title={seg.hotspotLabels.join(', ')}
                       style={{
                         marginLeft: 5,
-                        fontSize: 8,
+                        fontSize: 9,
                         fontWeight: 600,
                         color: '#d46a0e',
                         background: 'rgba(255, 124, 17, 0.10)',
@@ -429,7 +429,7 @@ export function SegmentExclusionPanel({
                 <span style={{ textAlign: 'right', fontWeight: 600, color: isExcluded ? 'var(--gl-color-text-muted)' : 'var(--gl-color-primary-dark)' }}>
                   {seg.cM.toFixed(1)}
                 </span>
-                <span style={{ textAlign: 'right', color: 'var(--gl-color-text-muted)', fontSize: 11 }}>
+                <span style={{ textAlign: 'right', color: 'var(--gl-color-text-muted)', fontSize: 13 }}>
                   {seg.snps > 0 ? seg.snps.toLocaleString() : '—'}
                 </span>
               </div>

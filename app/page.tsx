@@ -50,7 +50,8 @@ export default function Home() {
   const effectiveCM = useMemo(() => {
     if (!selectedMatch) return 0;
     if (!hasMultipleSegments || excludedSegmentIndices.size === 0) return selectedMatch.sharedCM;
-    return computeEffectiveCM(segments, excludedSegmentIndices);
+    // Cap at sharedCM: segment-level cM values may not sum exactly to sharedCM
+    return Math.min(computeEffectiveCM(segments, excludedSegmentIndices), selectedMatch.sharedCM);
   }, [selectedMatch, hasMultipleSegments, segments, excludedSegmentIndices]);
 
   const results = useMemo(() => {

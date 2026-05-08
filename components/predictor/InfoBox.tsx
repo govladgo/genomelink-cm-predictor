@@ -22,7 +22,7 @@ export function InfoBox({ entry, originalCM, effectiveCM }: InfoBoxProps) {
     >
       <div
         style={{
-          fontSize: 12,
+          fontSize: 14,
           fontFamily: 'var(--gl-font)',
           color: 'var(--gl-color-text-muted)',
           lineHeight: 1.6,
@@ -38,7 +38,7 @@ export function InfoBox({ entry, originalCM, effectiveCM }: InfoBoxProps) {
         {hasExclusion && (
           <>
             <br />
-            <span style={{ fontSize: 11, color: 'var(--gl-color-text-muted)' }}>
+            <span style={{ fontSize: 13, color: 'var(--gl-color-text-muted)' }}>
               Based on {effectiveCM.toFixed(1)} cM ({(originalCM - effectiveCM).toFixed(1)} cM excluded from {originalCM} cM total)
             </span>
           </>
