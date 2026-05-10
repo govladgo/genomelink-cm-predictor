@@ -27,6 +27,41 @@ function scoreBg(score: number): string {
   return 'transparent';
 }
 
+function Checkbox({ checked, onClick }: { checked: boolean; onClick: (e: React.MouseEvent) => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        width: 24,
+        height: 24,
+        borderRadius: 4,
+        border: checked ? '1px solid transparent' : '1px solid rgba(38, 56, 86, 0.6)',
+        background: checked ? '#FF7C11' : 'transparent',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 0,
+        flexShrink: 0,
+        transition: 'background 0.15s, border-color 0.15s',
+      }}
+    >
+      {checked && (
+        <svg width="14" height="11" viewBox="0 0 14 11" fill="none">
+          <path
+            d="M1.5 5.5L5 9L12.5 1.5"
+            stroke="#fff"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      )}
+    </button>
+  );
+}
+
 function ChevronIcon({ open }: { open: boolean }) {
   return (
     <svg
@@ -399,21 +434,13 @@ export function SegmentExclusionPanel({
                   }}
                 >
                   {/* Checkbox */}
-                  <span style={{ flexShrink: 0, width: 24 }}>
-                    <input
-                      type="checkbox"
-                      checked={!isExcluded}
-                      onChange={() => toggleSegment(seg.index)}
-                      onClick={(e) => e.stopPropagation()}
-                      style={{
-                        margin: 0,
-                        cursor: 'pointer',
-                        accentColor: '#FF7C11',
-                        width: 24,
-                        height: 24,
-                      }}
-                    />
-                  </span>
+                  <Checkbox
+                    checked={!isExcluded}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleSegment(seg.index);
+                    }}
+                  />
 
                   {/* Chr */}
                   <span style={{ flex: 1, fontWeight: 600, color: '#263856' }}>
