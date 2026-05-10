@@ -259,11 +259,11 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
             display: 'flex',
             alignItems: 'center',
             gap: 8,
-            fontSize: 14,
-            fontWeight: 500,
+            fontSize: 16,
+            fontWeight: 600,
             color: '#4582C9',
             textDecoration: 'none',
-            lineHeight: '20px',
+            lineHeight: '24px',
           }}
         >
           <BackArrow />
@@ -275,10 +275,10 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
           <ChainIcon />
           <span
             style={{
-              fontSize: 16,
-              fontWeight: 700,
+              fontSize: 24,
+              fontWeight: 600,
               color: '#263856',
-              lineHeight: '24px',
+              lineHeight: '32px',
             }}
           >
             Common Ancestor cM
@@ -294,11 +294,11 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
             display: 'flex',
             alignItems: 'center',
             gap: 6,
-            fontSize: 14,
-            fontWeight: 500,
+            fontSize: 16,
+            fontWeight: 600,
             color: '#4582C9',
             textDecoration: 'none',
-            lineHeight: '20px',
+            lineHeight: '24px',
           }}
         >
           <QuestionCircle />

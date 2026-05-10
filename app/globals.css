@@ -704,3 +704,75 @@ body {
   background: var(--gl-color-gray-semi);
   border-radius: 3px;
 }
+
+/* ===================================================
+   cM Predictor — Layout
+   =================================================== */
+
+/* Relationship cards: 2-col desktop, 1-col mobile */
+.relationship-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+/* Segment stats: 4-col desktop, 2×2 mobile */
+.segment-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+/* Segment table horizontal scroll on mobile */
+.segment-table-scroll {
+  overflow-x: auto;
+}
+
+/* Match detail header: row on desktop, column on mobile */
+.match-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Match detail stat tiles container */
+.match-stat-tiles {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  /* Main layout collapses */
+  .cmp-layout {
+    grid-template-columns: 1fr !important;
+  }
+  .cmp-layout aside {
+    position: static !important;
+    max-height: 360px !important;
+  }
+
+  /* Relationship cards stack */
+  .relationship-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Segment stats: 2×2 grid on mobile */
+  .segment-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Match detail header stacks */
+  .match-detail-header {
+    flex-direction: column;
+  }
+
+  /* Stat tiles fill width on mobile */
+  .match-stat-tiles {
+    width: 100%;
+  }
+  .match-stat-tiles > div {
+    flex: 1;
+  }
+}

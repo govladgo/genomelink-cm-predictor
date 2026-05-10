@@ -42,8 +42,8 @@ export function MatchList({ matches, selectedId, onSelect, loading }: MatchListP
       <div style={{ padding: '14px 16px 8px', borderBottom: '1px solid var(--gl-color-border-light)' }}>
         <div
           style={{
-            fontSize: 11,
-            fontWeight: 700,
+            fontSize: 12,
+            fontWeight: 600,
             color: 'var(--gl-color-text-muted)',
             textTransform: 'uppercase',
             letterSpacing: '0.04em',
@@ -54,14 +54,14 @@ export function MatchList({ matches, selectedId, onSelect, loading }: MatchListP
         </div>
         <input
           type="text"
-          placeholder="Search by name…"
+          placeholder="Search matches"
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
             setMaxRender(80);
           }}
           className="gl-input"
-          style={{ width: '100%', fontSize: 12, padding: '6px 10px' }}
+          style={{ width: '100%', fontSize: 14, padding: '8px 10px' }}
         />
       </div>
 
@@ -86,17 +86,14 @@ export function MatchList({ matches, selectedId, onSelect, loading }: MatchListP
                 key={m.id}
                 onClick={() => onSelect(m)}
                 style={{
-                  // Sized to match Match Hub's default MatchRow so the two
-                  // apps have identical row dimensions:
-                  //   avatar 36, name 14, meta 11, gap 12, padding 10/12
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 12,
-                  padding: '10px 12px',
+                  gap: 8,
+                  padding: '8px 10px',
                   width: '100%',
                   border: 'none',
                   borderRadius: 8,
-                  background: isSelected ? 'rgba(38, 56, 86, 0.08)' : 'transparent',
+                  background: isSelected ? 'rgba(122, 184, 255, 0.1)' : 'transparent',
                   cursor: 'pointer',
                   textAlign: 'left',
                   marginBottom: 2,
@@ -112,15 +109,15 @@ export function MatchList({ matches, selectedId, onSelect, loading }: MatchListP
               >
                 <span
                   style={{
-                    width: 36,
-                    height: 36,
+                    width: 32,
+                    height: 32,
                     borderRadius: '50%',
                     background: m.avatarColor,
                     color: '#fff',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: 600,
                     flexShrink: 0,
                   }}
@@ -140,7 +137,7 @@ export function MatchList({ matches, selectedId, onSelect, loading }: MatchListP
                   >
                     {m.name}
                   </div>
-                  <div style={{ fontSize: 11, color: 'var(--gl-color-text-muted)', marginTop: 2 }}>
+                  <div style={{ fontSize: 14, color: 'var(--gl-color-text-muted)', marginTop: 2 }}>
                     {m.sharedCM} cM · {m.relationship}
                   </div>
                 </div>

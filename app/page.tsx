@@ -1,7 +1,6 @@
 'use client';
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { RelationshipList } from '@/components/predictor/RelationshipList';
-import { InfoBox } from '@/components/predictor/InfoBox';
 import { MatchList } from '@/components/predictor/MatchList';
 import { SegmentExclusionPanel } from '@/components/predictor/SegmentExclusionPanel';
 import { UserSwitcher } from '@/components/UserSwitcher';
@@ -14,7 +13,7 @@ import {
   getSelectedUserIdFromUrl, setSelectedUserIdInUrl,
   DemoUser,
 } from '@/data/adapters/realData';
-import { DNAMatch, Segment } from '@/data/types';
+import { DNAMatch, Segment, SharedCmEntryV4 } from '@/data/types';
 
 interface IndexEntry {
   id: string;
@@ -23,6 +22,34 @@ interface IndexEntry {
   avatarColor: string;
   primaryPopulation: string;
   matchCount: number;
+}
+
+function capitalize(s: string): string {
+  if (!s) return s;
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function generateSummary(match: DNAMatch, topResult: SharedCmEntryV4 | null, effectiveCM: number): string {
+  const name = match.name.split(' ')[0];
+  const region = match.ancestryComposition?.[0]?.region;
+  const segCount = match.segments?.length ?? 0;
+
+  let text = `You share ${effectiveCM.toLocaleString()} cM with ${name}`;
+  if (segCount > 0) {
+    text += ` across ${segCount} DNA segment${segCount !== 1 ? 's' : ''}`;
+  }
+  text += '.';
+
+  if (topResult) {
+    const pct = Math.round(topResult.probability * 100);
+    text += ` The most likely relationship is ${topResult.relationship} (${pct}% probability), with a typical range of ${topResult.minCM.toLocaleString()}–${topResult.maxCM.toLocaleString()} cM.`;
+  }
+
+  if (region) {
+    text += ` Shared ancestry region: ${region}.`;
+  }
+
+  return text;
 }
 
 export default function Home() {
@@ -50,7 +77,6 @@ export default function Home() {
   const effectiveCM = useMemo(() => {
     if (!selectedMatch) return 0;
     if (!hasMultipleSegments || excludedSegmentIndices.size === 0) return selectedMatch.sharedCM;
-    // Cap at sharedCM: segment-level cM values may not sum exactly to sharedCM
     return Math.min(computeEffectiveCM(segments, excludedSegmentIndices), selectedMatch.sharedCM);
   }, [selectedMatch, hasMultipleSegments, segments, excludedSegmentIndices]);
 
@@ -60,6 +86,11 @@ export default function Home() {
   }, [effectiveCM]);
 
   const topResult = results.length > 0 ? results[0] : null;
+
+  const summaryText = useMemo(() => {
+    if (!selectedMatch || !topResult) return '';
+    return generateSummary(selectedMatch, topResult, effectiveCM);
+  }, [selectedMatch, topResult, effectiveCM]);
 
   const recomputeExclusions = useCallback(
     (segs: Segment[], popId: string) => {
@@ -115,7 +146,6 @@ export default function Home() {
   const handleSelectMatch = (match: DNAMatch) => {
     setSelectedMatchId(match.id);
 
-    // Auto-suggest population from the match's ancestry composition
     let popId = 'none';
     if (match.ancestryComposition && match.ancestryComposition.length > 0) {
       popId = suggestPopulationForAncestry(match.ancestryComposition[0].region);
@@ -156,13 +186,13 @@ export default function Home() {
         }
       />
 
-      <div style={{ maxWidth: 1180, margin: '0 auto', padding: '24px 16px' }}>
+      <div style={{ maxWidth: 1440, margin: '0 auto', padding: '24px clamp(16px, 4vw, 64px)' }}>
         {/* Main 2-column layout */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'minmax(240px, 280px) 1fr',
-            gap: 20,
+            gridTemplateColumns: '256px 1fr',
+            gap: 24,
             alignItems: 'start',
           }}
           className="cmp-layout"
@@ -207,92 +237,169 @@ export default function Home() {
                 </div>
               ) : (
                 <>
-                  {/* Selected match callout */}
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 12,
-                      padding: '12px 16px',
-                      marginBottom: 24,
-                      background: 'rgba(122, 184, 255, 0.1)',
-                      borderRadius: 8,
-                    }}
-                  >
-                    <span
-                      style={{
-                        width: 32, height: 32, borderRadius: '50%',
-                        background: selectedMatch.avatarColor, color: '#fff',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 12, fontWeight: 700, flexShrink: 0,
-                      }}
-                    >
-                      {selectedMatch.initials}
-                    </span>
+                  {/* Match header: name + source + stat tiles */}
+                  <div className="match-detail-header" style={{ marginBottom: 24 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 14, fontWeight: 600, lineHeight: '20px', color: '#263856' }}>
-                        Predicting for {selectedMatch.name}
-                      </div>
-                      <div style={{ fontSize: 14, lineHeight: '20px', color: '#6786AC' }}>
-                        {selectedMatch.sharedCM} cM · {selectedMatch.relationship}
+                      <h2
+                        style={{
+                          fontSize: 20,
+                          fontWeight: 600,
+                          lineHeight: '28px',
+                          color: '#263856',
+                          fontFamily: 'var(--gl-font)',
+                          margin: 0,
+                        }}
+                      >
+                        {selectedMatch.name}
+                      </h2>
+                      <div
+                        style={{
+                          fontSize: 14,
+                          lineHeight: '20px',
+                          color: '#6786AC',
+                          fontFamily: 'var(--gl-font)',
+                          marginTop: 4,
+                        }}
+                      >
+                        {capitalize(selectedMatch.source)} · {selectedMatch.relationship}
                         {selectedMatch.ancestryComposition && selectedMatch.ancestryComposition.length > 0 &&
                           ` · ${selectedMatch.ancestryComposition[0].region}`}
                       </div>
                     </div>
-                  </div>
-
-                  {/* Shared cM display */}
-                  <div style={{ marginBottom: 24 }}>
-                    <label
-                      style={{
-                        display: 'block',
-                        fontSize: 14,
-                        lineHeight: '20px',
-                        fontWeight: 400,
-                        fontFamily: 'var(--gl-font)',
-                        color: '#6786AC',
-                        marginBottom: 4,
-                      }}
-                    >
-                      Shared centiMorgan (cM) value
-                    </label>
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8,
-                        background: '#fff',
-                        border: '1px solid #8FABCF',
-                        borderRadius: 8,
-                        padding: 14,
-                      }}
-                    >
-                      <span
+                    <div className="match-stat-tiles">
+                      {/* cM shared tile */}
+                      <div
                         style={{
-                          fontSize: 14,
-                          lineHeight: '20px',
-                          fontWeight: 400,
-                          fontFamily: 'var(--gl-font)',
-                          color: '#263856',
-                          flex: 1,
+                          background: 'rgba(122, 184, 255, 0.1)',
+                          border: '1px solid rgba(122, 184, 255, 0.3)',
+                          borderRadius: 8,
+                          padding: '8px 16px',
+                          textAlign: 'center',
                         }}
                       >
-                        {selectedMatch.sharedCM}
-                      </span>
-                      <span
+                        <div
+                          style={{
+                            fontSize: 20,
+                            fontWeight: 700,
+                            lineHeight: '28px',
+                            color: '#4582C9',
+                            fontFamily: 'var(--gl-font)',
+                          }}
+                        >
+                          {selectedMatch.sharedCM.toLocaleString()}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 600,
+                            lineHeight: '16px',
+                            color: '#6786AC',
+                            fontFamily: 'var(--gl-font)',
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          cM shared
+                        </div>
+                      </div>
+                      {/* Segments tile */}
+                      <div
                         style={{
-                          fontSize: 14,
-                          lineHeight: '20px',
-                          fontFamily: 'var(--gl-font)',
-                          color: '#6786AC',
-                          whiteSpace: 'nowrap',
-                          flexShrink: 0,
+                          background: 'rgba(201, 214, 228, 0.2)',
+                          border: '1px solid rgba(103, 134, 172, 0.3)',
+                          borderRadius: 8,
+                          padding: '8px 16px',
+                          textAlign: 'center',
                         }}
                       >
-                        cM shared
-                      </span>
+                        <div
+                          style={{
+                            fontSize: 20,
+                            fontWeight: 700,
+                            lineHeight: '28px',
+                            color: '#263856',
+                            fontFamily: 'var(--gl-font)',
+                          }}
+                        >
+                          {segments.length}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 600,
+                            lineHeight: '16px',
+                            color: '#6786AC',
+                            fontFamily: 'var(--gl-font)',
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          Segments
+                        </div>
+                      </div>
+                      {/* Matches tile */}
+                      <div
+                        style={{
+                          background: 'rgba(201, 214, 228, 0.2)',
+                          border: '1px solid rgba(103, 134, 172, 0.3)',
+                          borderRadius: 8,
+                          padding: '8px 16px',
+                          textAlign: 'center',
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: 20,
+                            fontWeight: 700,
+                            lineHeight: '28px',
+                            color: '#263856',
+                            fontFamily: 'var(--gl-font)',
+                          }}
+                        >
+                          {results.length}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 600,
+                            lineHeight: '16px',
+                            color: '#6786AC',
+                            fontFamily: 'var(--gl-font)',
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          Matches
+                        </div>
+                      </div>
                     </div>
                   </div>
+
+                  {/* Summary section */}
+                  {summaryText && (
+                    <div style={{ marginBottom: 24 }}>
+                      <h3
+                        style={{
+                          fontSize: 16,
+                          fontWeight: 600,
+                          lineHeight: '24px',
+                          color: '#263856',
+                          fontFamily: 'var(--gl-font)',
+                          margin: '0 0 8px',
+                        }}
+                      >
+                        Summary
+                      </h3>
+                      <p
+                        style={{
+                          fontSize: 14,
+                          lineHeight: '22px',
+                          color: '#6786AC',
+                          fontFamily: 'var(--gl-font)',
+                          margin: 0,
+                        }}
+                      >
+                        {summaryText}
+                      </p>
+                    </div>
+                  )}
 
                   {/* Segment exclusion panel — only for multi-segment matches */}
                   {hasMultipleSegments && (
@@ -307,15 +414,6 @@ export default function Home() {
                       ancestryComposition={selectedMatch.ancestryComposition}
                     />
                   )}
-
-                  {/* Divider */}
-                  <div
-                    style={{
-                      height: 1,
-                      background: 'rgba(201, 214, 228, 0.6)',
-                      marginBottom: 24,
-                    }}
-                  />
 
                   {/* Results */}
                   {results.length === 0 ? (
@@ -360,16 +458,11 @@ export default function Home() {
                         </span>
                       </div>
 
-                      {topResult && (
-                        <InfoBox
-                          entry={topResult}
-                          originalCM={selectedMatch.sharedCM}
-                          effectiveCM={excludedSegmentIndices.size > 0 ? effectiveCM : undefined}
-                        />
-                      )}
-                      <div style={{ marginTop: 16 }}>
-                        <RelationshipList results={results} />
-                      </div>
+                      <RelationshipList
+                        results={results}
+                        originalCM={selectedMatch.sharedCM}
+                        effectiveCM={excludedSegmentIndices.size > 0 ? effectiveCM : undefined}
+                      />
                     </>
                   )}
                 </>
@@ -381,33 +474,18 @@ export default function Home() {
               style={{
                 marginTop: 24,
                 textAlign: 'center',
-                fontSize: 14,
-                lineHeight: '20px',
+                fontSize: 16,
+                lineHeight: '24px',
                 fontFamily: 'var(--gl-font)',
                 color: '#6786AC',
               }}
             >
               Data based on the Shared cM Project v4 (Bettinger/Larkin/Perl).
-              Population baselines from genealogical literature — approximations.
-              <br />
-              Demo data: real DNA-pair structure; names, ancestry, and vendor assignments synthesized.
+              Population baselines from genealogical literature.
             </div>
           </main>
         </div>
       </div>
-
-      {/* Mobile responsive: collapse to 1 column under 900px */}
-      <style jsx>{`
-        @media (max-width: 900px) {
-          :global(.cmp-layout) {
-            grid-template-columns: 1fr !important;
-          }
-          :global(.cmp-layout aside) {
-            position: static !important;
-            max-height: 360px !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }
