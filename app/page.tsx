@@ -267,108 +267,49 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="match-stat-tiles">
-                      {/* cM shared tile */}
-                      <div
-                        style={{
-                          background: 'rgba(122, 184, 255, 0.1)',
-                          border: '1px solid rgba(122, 184, 255, 0.3)',
-                          borderRadius: 8,
-                          padding: '8px 16px',
-                          textAlign: 'center',
-                        }}
-                      >
+                      {[
+                        { value: selectedMatch.sharedCM.toLocaleString(), label: 'cM shared' },
+                        { value: String(segments.length), label: 'Segments' },
+                        { value: String(results.length), label: 'Matches' },
+                      ].map((tile) => (
                         <div
+                          key={tile.label}
                           style={{
-                            fontSize: 20,
-                            fontWeight: 700,
-                            lineHeight: '28px',
-                            color: '#4582C9',
-                            fontFamily: 'var(--gl-font)',
+                            background: 'rgba(201, 214, 228, 0.2)',
+                            borderRadius: 12,
+                            padding: '8px 6px',
+                            textAlign: 'center',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: 4,
                           }}
                         >
-                          {selectedMatch.sharedCM.toLocaleString()}
+                          <div
+                            style={{
+                              fontSize: 20,
+                              fontWeight: 700,
+                              lineHeight: '28px',
+                              color: '#263856',
+                              fontFamily: 'var(--gl-font)',
+                            }}
+                          >
+                            {tile.value}
+                          </div>
+                          <div
+                            style={{
+                              fontSize: 12,
+                              fontWeight: 600,
+                              lineHeight: '16px',
+                              color: '#6786AC',
+                              fontFamily: 'var(--gl-font)',
+                              textTransform: 'uppercase',
+                            }}
+                          >
+                            {tile.label}
+                          </div>
                         </div>
-                        <div
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 600,
-                            lineHeight: '16px',
-                            color: '#6786AC',
-                            fontFamily: 'var(--gl-font)',
-                            textTransform: 'uppercase',
-                          }}
-                        >
-                          cM shared
-                        </div>
-                      </div>
-                      {/* Segments tile */}
-                      <div
-                        style={{
-                          background: 'rgba(201, 214, 228, 0.2)',
-                          border: '1px solid rgba(103, 134, 172, 0.3)',
-                          borderRadius: 8,
-                          padding: '8px 16px',
-                          textAlign: 'center',
-                        }}
-                      >
-                        <div
-                          style={{
-                            fontSize: 20,
-                            fontWeight: 700,
-                            lineHeight: '28px',
-                            color: '#263856',
-                            fontFamily: 'var(--gl-font)',
-                          }}
-                        >
-                          {segments.length}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 600,
-                            lineHeight: '16px',
-                            color: '#6786AC',
-                            fontFamily: 'var(--gl-font)',
-                            textTransform: 'uppercase',
-                          }}
-                        >
-                          Segments
-                        </div>
-                      </div>
-                      {/* Matches tile */}
-                      <div
-                        style={{
-                          background: 'rgba(201, 214, 228, 0.2)',
-                          border: '1px solid rgba(103, 134, 172, 0.3)',
-                          borderRadius: 8,
-                          padding: '8px 16px',
-                          textAlign: 'center',
-                        }}
-                      >
-                        <div
-                          style={{
-                            fontSize: 20,
-                            fontWeight: 700,
-                            lineHeight: '28px',
-                            color: '#263856',
-                            fontFamily: 'var(--gl-font)',
-                          }}
-                        >
-                          {results.length}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 600,
-                            lineHeight: '16px',
-                            color: '#6786AC',
-                            fontFamily: 'var(--gl-font)',
-                            textTransform: 'uppercase',
-                          }}
-                        >
-                          Matches
-                        </div>
-                      </div>
+                      ))}
                     </div>
                   </div>
 
