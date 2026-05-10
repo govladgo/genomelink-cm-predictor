@@ -306,7 +306,6 @@ export function SegmentExclusionPanel({
             border: '1px solid rgba(103, 134, 172, 0.3)',
             borderRadius: 12,
             padding: '8px 16px',
-            textAlign: 'center',
           }}
         >
           <div style={{ fontSize: 20, fontWeight: 700, lineHeight: '28px', color: '#263856', fontFamily: 'var(--gl-font)' }}>
@@ -324,7 +323,6 @@ export function SegmentExclusionPanel({
             border: '1px solid rgba(103, 134, 172, 0.3)',
             borderRadius: 12,
             padding: '8px 16px',
-            textAlign: 'center',
           }}
         >
           <div style={{ fontSize: 20, fontWeight: 700, lineHeight: '28px', color: '#263856', fontFamily: 'var(--gl-font)' }}>
@@ -342,7 +340,6 @@ export function SegmentExclusionPanel({
             border: '1px solid #7AB8FF',
             borderRadius: 12,
             padding: '8px 16px',
-            textAlign: 'center',
           }}
         >
           <div style={{ fontSize: 20, fontWeight: 700, lineHeight: '28px', color: '#4582C9', fontFamily: 'var(--gl-font)' }}>
@@ -363,7 +360,6 @@ export function SegmentExclusionPanel({
             border: '1px solid #FF7C11',
             borderRadius: 12,
             padding: '8px 16px',
-            textAlign: 'center',
           }}
         >
           <div style={{ fontSize: 20, fontWeight: 700, lineHeight: '28px', color: '#F2690B', fontFamily: 'var(--gl-font)' }}>
