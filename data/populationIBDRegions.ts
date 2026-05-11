@@ -244,6 +244,60 @@ const BALTIC_HOTSPOTS: IBDHotspot[] = [
 ];
 
 // ============================================================================
+// Polynesian / Māori — extreme bottleneck populations
+// ============================================================================
+
+const POLYNESIAN_HOTSPOTS: IBDHotspot[] = [
+  {
+    id: 'PO_CHR4',
+    chromosome: 4,
+    startBp: 40_000_000,
+    endBp: 70_000_000,
+    label: 'Chr 4 Polynesian founder haplotype',
+    mechanism: 'founder_haplotype',
+    confidence: 'low',
+    populations: ['polynesian'],
+  },
+  {
+    id: 'PO_CHR11',
+    chromosome: 11,
+    startBp: 45_000_000,
+    endBp: 75_000_000,
+    label: 'Chr 11 Polynesian excess sharing',
+    mechanism: 'founder_haplotype',
+    confidence: 'low',
+    populations: ['polynesian'],
+  },
+];
+
+// ============================================================================
+// Finnish — Finnish Disease Heritage founder regions
+// ============================================================================
+
+const FINNISH_HOTSPOTS: IBDHotspot[] = [
+  {
+    id: 'FI_CHR2',
+    chromosome: 2,
+    startBp: 100_000_000,
+    endBp: 130_000_000,
+    label: 'Chr 2 Finnish founder region',
+    mechanism: 'founder_haplotype',
+    confidence: 'medium',
+    populations: ['finnish'],
+  },
+  {
+    id: 'FI_CHR9',
+    chromosome: 9,
+    startBp: 90_000_000,
+    endBp: 115_000_000,
+    label: 'Chr 9 Finnish excess sharing',
+    mechanism: 'founder_haplotype',
+    confidence: 'medium',
+    populations: ['finnish'],
+  },
+];
+
+// ============================================================================
 // Combined catalog + lookup
 // ============================================================================
 
@@ -254,6 +308,8 @@ export const ALL_IBD_HOTSPOTS: IBDHotspot[] = [
   ...MENNONITE_HOTSPOTS,
   ...ICELANDIC_HOTSPOTS,
   ...BALTIC_HOTSPOTS,
+  ...POLYNESIAN_HOTSPOTS,
+  ...FINNISH_HOTSPOTS,
 ];
 
 /**

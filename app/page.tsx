@@ -148,7 +148,8 @@ export default function Home() {
 
     let popId = 'none';
     if (match.ancestryComposition && match.ancestryComposition.length > 0) {
-      popId = suggestPopulationForAncestry(match.ancestryComposition[0].region);
+      const primary = match.ancestryComposition[0];
+      popId = suggestPopulationForAncestry(primary.region, primary.percentage);
     }
     setPopulationId(popId);
 

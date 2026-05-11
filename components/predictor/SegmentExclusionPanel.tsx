@@ -226,7 +226,7 @@ export function SegmentExclusionPanel({
   );
 
   const relevantPopulations = useMemo(
-    () => getRelevantPopulations((ancestryComposition ?? []).map((a) => a.region)),
+    () => getRelevantPopulations(ancestryComposition ?? []),
     [ancestryComposition],
   );
 

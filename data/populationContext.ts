@@ -18,7 +18,7 @@
  * demography, etc.). Numbers in v1 are approximations — flagged in UI as such.
  */
 
-import { SharedCmEntryV4 } from './types';
+import { SharedCmEntryV4, AncestryComponent } from './types';
 
 // ============================================================================
 // Population context type
@@ -185,6 +185,92 @@ export const POPULATION_CONTEXTS: PopulationContext[] = [
       '5th cousin': { minCM: 50, maxCM: 200, avgCM: 80 },
     },
   },
+  {
+    id: 'polynesian',
+    label: 'Polynesian / Māori',
+    era: 'Polynesian expansion (~1000–1300 CE)',
+    narrative:
+      'Polynesian populations descend from small groups of voyagers who settled the Pacific islands over a few centuries. Māori, for example, descend from perhaps 100–200 founding individuals who reached New Zealand ~1300 CE. This extreme bottleneck means two unrelated Māori or Pacific Islanders often share 100–200+ cM from population-level ancestry alone.',
+    associatedRegions: ['Polynesian', 'Melanesian', 'Oceanian'],
+    exampleMatchPattern:
+      'Two Māori individuals sharing 250 cM may appear as 3rd cousins, but after subtracting ~120 cM of population baseline, the true relationship is likely 5th–6th cousins or more distant.',
+    sharedPopulationFloor: 120,
+    endogamyEquivalent: 1.65,
+    cmAdjustments: {
+      '3rd cousin': { minCM: 150, maxCM: 500, avgCM: 280 },
+      '4th cousin': { minCM: 120, maxCM: 380, avgCM: 200 },
+      '5th cousin': { minCM: 110, maxCM: 300, avgCM: 160 },
+      '6th cousin': { minCM: 100, maxCM: 240, avgCM: 130 },
+    },
+  },
+  {
+    id: 'sephardic',
+    label: 'Sephardic / Mizrahi Jewish',
+    era: 'Iberian Sephardic diaspora (1492+) and Middle Eastern communities',
+    narrative:
+      'Sephardic Jews were expelled from Spain and Portugal in the 1490s, forming tight-knit diaspora communities across the Ottoman Empire, North Africa, and the Americas. Mizrahi Jewish communities in the Middle East maintained similar endogamous marriage patterns. Both groups share significant population-level DNA from centuries of in-group marriage.',
+    associatedRegions: ['Sephardic Jewish', 'Mizrahi Jewish', 'North African'],
+    exampleMatchPattern:
+      'Two Sephardic-descended individuals sharing 120 cM may share no documentable ancestor — roughly half (~60 cM) comes from population-wide shared ancestry.',
+    sharedPopulationFloor: 60,
+    endogamyEquivalent: 1.35,
+    cmAdjustments: {
+      '3rd cousin': { minCM: 80, maxCM: 350, avgCM: 170 },
+      '4th cousin': { minCM: 60, maxCM: 260, avgCM: 110 },
+      '5th cousin': { minCM: 55, maxCM: 200, avgCM: 85 },
+    },
+  },
+  {
+    id: 'finnish',
+    label: 'Finnish',
+    era: 'Finnish founder population (~2000 BCE – present)',
+    narrative:
+      'Finland was settled by a small founder population that remained relatively isolated due to geography and language. A secondary bottleneck occurred during the internal migration of the 16th–17th centuries when small groups settled the interior. This "Finnish Disease Heritage" of ~40 rare genetic conditions reflects the extreme founder effect. Two unrelated Finns often share 50–100+ cM from this shared past.',
+    associatedRegions: ['Finnish', 'Northern European'],
+    exampleMatchPattern:
+      'Two Finns from eastern Finland sharing 130 cM may be 6th–7th cousins through many paths, not 4th cousins as raw cM would suggest.',
+    sharedPopulationFloor: 70,
+    endogamyEquivalent: 1.40,
+    cmAdjustments: {
+      '3rd cousin': { minCM: 90, maxCM: 350, avgCM: 170 },
+      '4th cousin': { minCM: 70, maxCM: 260, avgCM: 120 },
+      '5th cousin': { minCM: 65, maxCM: 200, avgCM: 90 },
+    },
+  },
+  {
+    id: 'native_american',
+    label: 'Native American / First Nations',
+    era: 'Pre-Columbian isolation + post-contact bottleneck',
+    narrative:
+      'Indigenous American populations experienced severe bottlenecks: first during initial migration from Asia (~15,000+ years ago), then catastrophic population decline after European contact (90%+ in many regions). Surviving communities often descend from very small effective populations. Two unrelated members of the same tribal nation can share 60–150+ cM purely from these bottleneck effects.',
+    associatedRegions: ['Native American', 'Indigenous Americas'],
+    exampleMatchPattern:
+      'Two members of the same First Nations community sharing 150 cM may be distant cousins through dozens of ancestral paths, not the 4th cousins that raw cM suggests.',
+    sharedPopulationFloor: 80,
+    endogamyEquivalent: 1.45,
+    cmAdjustments: {
+      '3rd cousin': { minCM: 100, maxCM: 400, avgCM: 200 },
+      '4th cousin': { minCM: 80, maxCM: 300, avgCM: 140 },
+      '5th cousin': { minCM: 70, maxCM: 240, avgCM: 110 },
+    },
+  },
+  {
+    id: 'south_asian',
+    label: 'South Asian (endogamous communities)',
+    era: 'Caste / jati endogamy (~1,500+ years)',
+    narrative:
+      'Many South Asian communities have practiced strict endogamy within caste (jati) groups for over 1,500 years, creating genetic isolation between groups living in the same region. Within a jati, members share substantial DNA from this long history of in-group marriage, making distant relatives appear much closer than they are.',
+    associatedRegions: ['South Asian', 'South Indian'],
+    exampleMatchPattern:
+      'Two people from the same South Indian jati sharing 100 cM may have no known common ancestor — most of that sharing (~50 cM) reflects centuries of community-level endogamy.',
+    sharedPopulationFloor: 50,
+    endogamyEquivalent: 1.30,
+    cmAdjustments: {
+      '3rd cousin': { minCM: 70, maxCM: 320, avgCM: 150 },
+      '4th cousin': { minCM: 50, maxCM: 240, avgCM: 100 },
+      '5th cousin': { minCM: 45, maxCM: 190, avgCM: 75 },
+    },
+  },
 ];
 
 // ============================================================================
@@ -197,29 +283,42 @@ export function getPopulationById(id: string): PopulationContext {
 
 /**
  * Suggest a default population from the user's primary ancestry region.
- * Returns 'none' if no good match.
+ * Returns 'none' if no good match or if percentage is below threshold.
+ *
+ * @param primaryRegion — the ancestry region string
+ * @param percentage — ancestry percentage (0–100). If below 25, returns 'none'.
  */
-export function suggestPopulationForAncestry(primaryRegion: string): string {
+export function suggestPopulationForAncestry(primaryRegion: string, percentage?: number): string {
+  if (percentage !== undefined && percentage < 25) return 'none';
+
   const lower = primaryRegion.toLowerCase();
   if (lower.includes('ashkenazi')) return 'ashkenazi';
+  if (lower.includes('sephardic') || lower.includes('mizrahi')) return 'sephardic';
   if (lower.includes('iberian') || lower.includes('latin')) return 'iberian_latam';
   if (lower.includes('eastern european') || lower.includes('baltic')) return 'baltic_slavic';
   if (lower.includes('scandinavian')) return 'icelandic';
   if (lower.includes('british') || lower.includes('irish')) return 'british_irish_colonial';
+  if (lower.includes('polynesian') || lower.includes('maori') || lower.includes('oceanian') || lower.includes('melanesian')) return 'polynesian';
+  if (lower.includes('finnish')) return 'finnish';
+  if (lower.includes('native american') || lower.includes('indigenous')) return 'native_american';
+  if (lower.includes('south asian') || lower.includes('south indian')) return 'south_asian';
+  if (lower.includes('north african')) return 'sephardic';
   return 'none';
 }
 
 /**
  * Return population contexts relevant to a match's ancestry composition.
- * Always includes 'none'. Matches population associatedRegions against
- * the match's ancestry regions (case-insensitive substring matching).
+ * Always includes 'none'. Only considers ancestry components with ≥25%
+ * to avoid suggesting populations based on minor ancestry fractions.
  */
 export function getRelevantPopulations(
-  ancestryRegions: string[],
+  ancestryComponents: AncestryComponent[],
 ): PopulationContext[] {
-  if (ancestryRegions.length === 0) return POPULATION_CONTEXTS;
+  // Filter to significant ancestry components (≥25%)
+  const significant = ancestryComponents.filter((a) => a.percentage >= 25);
+  if (significant.length === 0) return POPULATION_CONTEXTS;
 
-  const lowerRegions = ancestryRegions.map((r) => r.toLowerCase());
+  const lowerRegions = significant.map((a) => a.region.toLowerCase());
 
   const relevant = POPULATION_CONTEXTS.filter((pop) => {
     if (pop.id === 'none') return true;
@@ -233,9 +332,9 @@ export function getRelevantPopulations(
 
   // If only 'none' matched, also check with suggestPopulationForAncestry
   // as a fallback (it uses broader matching)
-  if (relevant.length <= 1 && ancestryRegions.length > 0) {
-    for (const region of ancestryRegions) {
-      const suggested = suggestPopulationForAncestry(region);
+  if (relevant.length <= 1 && significant.length > 0) {
+    for (const comp of significant) {
+      const suggested = suggestPopulationForAncestry(comp.region, comp.percentage);
       if (suggested !== 'none') {
         const pop = POPULATION_CONTEXTS.find((p) => p.id === suggested);
         if (pop && !relevant.includes(pop)) relevant.push(pop);
