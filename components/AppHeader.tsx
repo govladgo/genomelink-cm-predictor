@@ -281,7 +281,7 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
               lineHeight: '32px',
             }}
           >
-            Common Ancestor cM
+            cM Clarity
           </span>
         </div>
 

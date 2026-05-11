@@ -228,12 +228,26 @@ export default function Home() {
                 <div
                   style={{
                     textAlign: 'center', padding: '60px 0',
-                    fontSize: 16, lineHeight: '24px',
                     fontFamily: 'var(--gl-font)',
-                    color: '#6786AC',
                   }}
                 >
-                  Select a match from the list to see relationship predictions
+                  <div
+                    style={{
+                      fontSize: 16, lineHeight: '24px',
+                      color: '#6786AC',
+                    }}
+                  >
+                    Select a match from the list to see relationship predictions
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 12, lineHeight: '16px',
+                      color: '#8FABCF',
+                      marginTop: 8,
+                    }}
+                  >
+                    For endogamous populations, exclude shared segments to reveal the true relationship.
+                  </div>
                 </div>
               ) : (
                 <>

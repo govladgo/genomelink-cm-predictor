@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Common Ancestor cM — Genomelink',
+  title: 'cM Clarity — Genomelink',
   description: 'Predict the relationship behind a shared cM value, with population-context adjustments for endogamous and historically intermixed groups.',
 };
 

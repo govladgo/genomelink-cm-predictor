@@ -53,7 +53,7 @@ export function CommonAncestorPanel({
             fontFamily: 'var(--gl-font)',
           }}
         >
-          Common Ancestor cM
+          cM Clarity
         </h3>
         <p
           style={{

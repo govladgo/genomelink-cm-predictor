@@ -1,5 +1,5 @@
 /**
- * Common Ancestor cM — population-context reference data.
+ * cM Clarity — population-context reference data.
  *
  * For populations with significant historical endogamy or shared ancestry,
  * two unrelated members can share substantial DNA simply by virtue of belonging
@@ -251,7 +251,7 @@ export function getRelevantPopulations(
  *   - The cM attributable to recent ancestry (subtracting the population floor)
  *   - The set of relationship matches based on this residual
  *
- * Used by the Common Ancestor cM panel to show "after population context"
+ * Used by the cM Clarity panel to show "after population context"
  * predictions alongside the raw histogram.
  */
 export function recentAncestorCM(observedCM: number, population: PopulationContext): number {

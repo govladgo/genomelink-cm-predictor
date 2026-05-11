@@ -38,7 +38,7 @@ export default function CmPredictorHelpPage() {
         >
           {/* === Intro === */}
           <section style={sectionGroup}>
-            <h1 style={h1Style}>How to use Common Ancestor cM</h1>
+            <h1 style={h1Style}>How to use cM Clarity</h1>
             <p style={tagline}>
               Predict the relationship behind a shared centiMorgan value, with segment-level analysis
               and population-aware adjustments.
@@ -54,6 +54,13 @@ export default function CmPredictorHelpPage() {
             <p style={bodyText}>
               This tool shows the full distribution of possible relationships and lets you exclude
               segments likely inherited from population-level ancestry to reveal the true relationship signal.
+            </p>
+
+            <p style={bodyText}>
+              For example, two M&#257;ori individuals may show as 2nd cousins based on raw shared cM,
+              but much of that sharing comes from population-level ancestry rather than a recent
+              common ancestor. After excluding those population-inherited segments, the true
+              relationship might be 4th cousins or more distant.
             </p>
           </section>
 
