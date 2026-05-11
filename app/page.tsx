@@ -202,8 +202,8 @@ export default function Home() {
             style={{
               position: 'sticky',
               top: 24,
+              height: 'calc(100vh - 48px)',
               maxHeight: 'calc(100vh - 48px)',
-              minHeight: 480,
             }}
           >
             <MatchList
