@@ -747,10 +747,12 @@ body {
   /* Main layout collapses */
   .cmp-layout {
     grid-template-columns: 1fr !important;
+    gap: 12px !important;
   }
   .cmp-layout aside {
     position: static !important;
-    max-height: 360px !important;
+    height: auto !important;
+    max-height: none !important;
   }
 
   /* Relationship cards stack */
@@ -774,5 +776,27 @@ body {
   }
   .match-stat-tiles > div {
     flex: 1;
+  }
+
+  /* Sub-header: hide link text, show icons only */
+  .subheader-link-text {
+    display: none;
+  }
+
+  /* Reduce container padding on mobile */
+  .cmp-container {
+    padding: 12px 12px !important;
+  }
+
+  /* Footer smaller on mobile */
+  .cmp-footer {
+    font-size: 11px !important;
+    line-height: 16px !important;
+    margin-top: 16px !important;
+  }
+
+  /* Match list fixed height to show ~7 rows */
+  .match-list-wrapper {
+    max-height: 480px;
   }
 }

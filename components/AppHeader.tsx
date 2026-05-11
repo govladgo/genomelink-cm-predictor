@@ -255,7 +255,7 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
           href="/"
           style={{
             position: 'absolute',
-            left: 'clamp(24px, 4vw, 64px)',
+            left: 'clamp(12px, 4vw, 64px)',
             display: 'flex',
             alignItems: 'center',
             gap: 8,
@@ -267,7 +267,7 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
           }}
         >
           <BackArrow />
-          Back to tools
+          <span className="subheader-link-text">Back to tools</span>
         </Link>
 
         {/* Center: page title */}
@@ -290,7 +290,7 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
           href="/help"
           style={{
             position: 'absolute',
-            right: 'clamp(24px, 4vw, 64px)',
+            right: 'clamp(12px, 4vw, 64px)',
             display: 'flex',
             alignItems: 'center',
             gap: 6,
@@ -302,7 +302,7 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
           }}
         >
           <QuestionCircle />
-          How to use?
+          <span className="subheader-link-text">How to use?</span>
         </Link>
       </div>
     </header>

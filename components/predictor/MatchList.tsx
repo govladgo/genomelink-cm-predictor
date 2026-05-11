@@ -28,6 +28,7 @@ export function MatchList({ matches, selectedId, onSelect, loading }: MatchListP
 
   return (
     <div
+      className="match-list-wrapper"
       style={{
         background: 'var(--gl-color-surface)',
         borderRadius: 12,

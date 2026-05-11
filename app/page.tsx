@@ -186,7 +186,7 @@ export default function Home() {
         }
       />
 
-      <div style={{ maxWidth: 1440, margin: '0 auto', padding: '24px clamp(16px, 4vw, 64px)' }}>
+      <div className="cmp-container" style={{ maxWidth: 1440, margin: '0 auto', padding: '24px clamp(16px, 4vw, 64px)' }}>
         {/* Main 2-column layout */}
         <div
           style={{
@@ -412,13 +412,14 @@ export default function Home() {
 
             {/* Footer */}
             <div
+              className="cmp-footer"
               style={{
                 marginTop: 24,
                 textAlign: 'center',
-                fontSize: 16,
-                lineHeight: '24px',
+                fontSize: 12,
+                lineHeight: '16px',
                 fontFamily: 'var(--gl-font)',
-                color: '#6786AC',
+                color: '#8FABCF',
               }}
             >
               Data based on the Shared cM Project v4 (Bettinger/Larkin/Perl).
