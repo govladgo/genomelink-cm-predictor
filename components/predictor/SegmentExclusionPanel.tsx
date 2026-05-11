@@ -271,7 +271,7 @@ export function SegmentExclusionPanel({
       style={{
         background: 'rgba(201, 214, 228, 0.2)',
         borderRadius: 16,
-        padding: '24px 16px',
+        padding: 16,
       }}
     >
       {/* Title */}
