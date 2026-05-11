@@ -344,6 +344,7 @@ export default function Home() {
 
                   {/* Segment exclusion panel — only for multi-segment matches */}
                   {hasMultipleSegments && (
+                    <div style={{ marginBottom: 24 }}>
                     <SegmentExclusionPanel
                       segments={segments}
                       totalCM={selectedMatch.sharedCM}
@@ -354,6 +355,7 @@ export default function Home() {
                       effectiveCM={effectiveCM}
                       ancestryComposition={selectedMatch.ancestryComposition}
                     />
+                    </div>
                   )}
 
                   {/* Results */}
