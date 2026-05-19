@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { supportHubUrl } from '@/lib/supportHubUrl';
 
 /* ------------------------------------------------------------------ */
 /*  Nav menu items (decorative for standalone tool — no real routing)  */
@@ -285,9 +286,10 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
           </span>
         </div>
 
-        {/* Right: how to use */}
-        <Link
-          href="/help"
+        {/* Right: how to use — links to the unified DNA Match Support hub.
+            Cross-domain, so use <a> rather than next/link. */}
+        <a
+          href={supportHubUrl('cm-clarity')}
           style={{
             position: 'absolute',
             right: 'clamp(12px, 4vw, 64px)',
@@ -303,7 +305,7 @@ export function AppHeader({ rightSlot }: AppHeaderProps) {
         >
           <QuestionCircle />
           <span className="subheader-link-text">How to use?</span>
-        </Link>
+        </a>
       </div>
     </header>
   );
